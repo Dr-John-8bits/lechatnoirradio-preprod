@@ -349,7 +349,6 @@
     reconnectAttempts: 0,
     lastProgressAt: Date.now(),
     lastUserGestureAt: 0,
-    lastToggleInteractionAt: 0,
     reconnectTimer: null,
     stallTimer: null,
     suppressPauseIntent: false,
@@ -794,15 +793,8 @@
   }
 
   function handleAudioToggleInteraction(event) {
-    if (event) {
-      if (event.type === "click" && Date.now() - state.lastToggleInteractionAt < 700) {
-        if (event.cancelable) event.preventDefault();
-        return;
-      }
-      if (event.type === "pointerup" || event.type === "touchend") {
-        state.lastToggleInteractionAt = Date.now();
-        if (event.cancelable) event.preventDefault();
-      }
+    if (event && event.cancelable) {
+      event.preventDefault();
     }
     markUserGesture();
     togglePlayback();
@@ -811,13 +803,6 @@
   function bindAudioToggleButton(button) {
     if (!button || button.dataset.audioToggleBound === "true") return;
     button.dataset.audioToggleBound = "true";
-    if ("PointerEvent" in window) {
-      button.addEventListener("pointerup", handleAudioToggleInteraction);
-    } else {
-      button.addEventListener("touchend", handleAudioToggleInteraction, {
-        passive: false,
-      });
-    }
     button.addEventListener("click", handleAudioToggleInteraction);
   }
 
