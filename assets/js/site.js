@@ -12,7 +12,9 @@
   var HISTORY_CACHE_KEY = "lcn-history-preview-v1";
   var HISTORY_CACHE_AT_KEY = "lcn-history-preview-at";
   var HISTORY_CACHE_MAX_ROWS = 240;
-  var HISTORY_CACHE_MAX_AGE_MS = 3 * 60 * 1000;
+  var HISTORY_CACHE_MAX_AGE_MS = 15 * 60 * 1000;
+  var HOME_HISTORY_REFRESH_MS = 5 * 60 * 1000;
+  var HOME_HISTORY_INITIAL_DELAY_MS = 1200;
 
   var ICONS = {
     play:
@@ -66,6 +68,7 @@
     connectionState: "idle",
     dockVolumeOpen: false,
     heroVolumeOpen: false,
+    historyFetchAt: 0,
   };
 
   var refs = {
@@ -222,7 +225,7 @@
     return values;
   }
 
-  function parseCsvRows(csvText) {
+  function parseCsvRows(csvText, limitFromEnd) {
     var normalized = String(csvText || "")
       .replace(/\r\n?/g, "\n")
       .trim();
@@ -230,7 +233,11 @@
 
     var lines = normalized.split("\n");
     var parsed = [];
-    for (var i = 1; i < lines.length; i += 1) {
+    var startIndex = 1;
+    if (Number.isFinite(limitFromEnd) && limitFromEnd > 0) {
+      startIndex = Math.max(1, lines.length - limitFromEnd);
+    }
+    for (var i = startIndex; i < lines.length; i += 1) {
       var line = lines[i];
       if (!line) continue;
       var cols = parseCsvLine(line);
@@ -564,11 +571,41 @@
     state.sortedHistoryRows = getSortedHistoryRows(state.historyRows);
   }
 
+  function loadHistoryCache() {
+    try {
+      var rawRows = window.localStorage.getItem(HISTORY_CACHE_KEY);
+      var rawAt = Number(window.localStorage.getItem(HISTORY_CACHE_AT_KEY));
+      if (!rawRows || !Number.isFinite(rawAt)) return false;
+      if (Date.now() - rawAt > HISTORY_CACHE_MAX_AGE_MS) return false;
+      var parsedRows = JSON.parse(rawRows);
+      if (!Array.isArray(parsedRows) || !parsedRows.length) return false;
+      setHistoryRows(
+        parsedRows.map(function (row) {
+          return {
+            tsIso: row && row.tsIso ? row.tsIso : "",
+            artist: row && row.artist ? row.artist : "",
+            title: row && row.title ? row.title : "",
+            album: row && row.album ? row.album : "",
+            year: row && row.year ? row.year : "",
+          };
+        })
+      );
+      state.historyFetchAt = rawAt;
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
   function getHistoryRowsSorted() {
     if (state.sortedHistoryRows && state.sortedHistoryRows.length) {
       return state.sortedHistoryRows;
     }
     return getSortedHistoryRows(state.historyRows);
+  }
+
+  function shouldRefreshHomeHistory() {
+    return !state.historyFetchAt || Date.now() - state.historyFetchAt >= HOME_HISTORY_REFRESH_MS;
   }
 
   function fillIconSlots(scope) {
@@ -925,7 +962,8 @@
       var response = await fetch(HISTORY_CSV_URL + "?t=" + Date.now(), { cache: "no-store" });
       if (!response.ok) throw new Error(String(response.status));
       var csvText = await response.text();
-      setHistoryRows(parseCsvRows(csvText));
+      setHistoryRows(parseCsvRows(csvText, HISTORY_CACHE_MAX_ROWS));
+      state.historyFetchAt = Date.now();
       saveHistoryCache(state.historyRows);
       renderHomeRecentList();
       if (!state.currentTrack.title || /chargement/i.test(state.currentTrack.title)) {
@@ -934,6 +972,22 @@
     } catch (error) {
       return;
     }
+  }
+
+  function scheduleInitialHistoryRefresh() {
+    if (!shouldRefreshHomeHistory()) return;
+    if (typeof window.requestIdleCallback === "function") {
+      window.requestIdleCallback(
+        function () {
+          if (!document.hidden) refreshHistory();
+        },
+        { timeout: HOME_HISTORY_INITIAL_DELAY_MS + 600 }
+      );
+      return;
+    }
+    window.setTimeout(function () {
+      if (!document.hidden) refreshHistory();
+    }, HOME_HISTORY_INITIAL_DELAY_MS);
   }
 
   function getSharePayload() {
@@ -1129,6 +1183,12 @@
       if (state.dockVolumeOpen) setDockVolumePopover(false);
       if (state.heroVolumeOpen) setHeroVolumePopover(false);
     });
+
+    document.addEventListener("visibilitychange", function () {
+      if (!document.hidden && shouldRefreshHomeHistory()) {
+        refreshHistory();
+      }
+    });
   }
 
   function bindAudioEvents() {
@@ -1176,15 +1236,20 @@
   }
 
   function initialize() {
+    loadHistoryCache();
     bindShellEvents();
     renderPage();
     updateUi();
     bindAudioEvents();
     setVolume(state.volume);
-    refreshHistory();
+    scheduleInitialHistoryRefresh();
     refreshNowPlaying();
     window.setInterval(refreshNowPlaying, 12000);
-    window.setInterval(refreshHistory, 20000);
+    window.setInterval(function () {
+      if (!document.hidden && shouldRefreshHomeHistory()) {
+        refreshHistory();
+      }
+    }, HOME_HISTORY_REFRESH_MS);
   }
 
   initialize();
