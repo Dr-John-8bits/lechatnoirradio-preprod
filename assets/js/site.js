@@ -1625,6 +1625,7 @@
     fillIconSlots(document);
     updateRouteLinks();
     updateStatusText();
+    updateMediaSessionPlaybackState();
     syncVolumeInputs();
     updateTrackText();
     renderHomeRecentList();
@@ -1878,6 +1879,15 @@
     }
   }
 
+  function updateMediaSessionPlaybackState() {
+    if (!("mediaSession" in navigator)) return;
+    try {
+      navigator.mediaSession.playbackState = state.isPlaying ? "playing" : "paused";
+    } catch (error) {
+      return;
+    }
+  }
+
   function bindPageEvents() {
     refs.pageRoot.querySelectorAll("[data-audio-toggle]").forEach(function (button) {
       bindAudioToggleButton(button);
@@ -2012,8 +2022,6 @@
 
   function bindAudioEvents() {
     if (!refs.audio) return;
-    refs.audio.controls = false;
-    refs.audio.removeAttribute("controls");
     refs.audio.preload = "none";
     refs.audio.volume = state.volume;
 
