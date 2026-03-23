@@ -898,7 +898,7 @@
       '<p class="section-intro">Les derniers contenus passés à l\'antenne, musique, émission ou autre forme sonore comprise.</p>' +
       "</div>" +
       '<ul id="homeRecentList" class="recent-list"></ul>' +
-      '<a class="panel-link" href="historique.html" target="_blank" rel="noopener" data-new-tab-link="true">' +
+      '<a class="panel-link" href="historique.html" target="_blank" rel="noopener">' +
       icon("arrow") +
       "<span>Afficher l'historique de diffusion</span>" +
       "</a>" +
@@ -919,7 +919,7 @@
       "</p>" +
       "</div>" +
       '<div id="homeTodayFocus" class="recent-list"></div>' +
-      '<a class="panel-link" href="grille.html" target="_blank" rel="noopener" data-new-tab-link="true">' +
+      '<a class="panel-link" href="grille.html" target="_blank" rel="noopener">' +
       icon("arrow") +
       "<span>Voir la grille complète</span>" +
       "</a>" +
@@ -1204,7 +1204,6 @@
     if (!html) html = renderHomePage();
     refs.pageRoot.innerHTML = html;
     fillIconSlots(refs.pageRoot);
-    bindNewTabLinks(refs.pageRoot);
     bindPageEvents();
     updateUi();
     window.requestAnimationFrame(function () {
@@ -1235,22 +1234,6 @@
     } catch (error) {
       return null;
     }
-  }
-
-  function bindNewTabLinks(scope) {
-    var root = scope || document;
-    root.querySelectorAll("[data-new-tab-link]").forEach(function (link) {
-      if (link.dataset.newTabBound === "true") return;
-      link.dataset.newTabBound = "true";
-      link.addEventListener("click", function (event) {
-        var href = link.getAttribute("href");
-        if (!href) return;
-        var nextTab = window.open(href, "_blank", "noopener");
-        if (nextTab && event && event.cancelable) {
-          event.preventDefault();
-        }
-      });
-    });
   }
 
   function fillIconSlots(scope) {
