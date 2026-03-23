@@ -835,6 +835,7 @@
       '<div class="orbital-core"></div>' +
       '<button class="hero-play" type="button" aria-label="Lancer ou mettre en pause le direct" data-audio-toggle data-button-kind="hero"></button>' +
       "</div>" +
+      '<div id="nativeAudioSlot" class="native-audio-slot" aria-hidden="true"></div>' +
       '<div class="hero-ticker-row">' +
       '<div class="hero-ticker-wrap">' +
       '<div id="heroTicker" class="marquee hero-marquee" aria-live="polite">' +
@@ -1902,6 +1903,11 @@
   }
 
   function bindPageEvents() {
+    var nativeAudioSlot = document.getElementById("nativeAudioSlot");
+    if (nativeAudioSlot && refs.audio && refs.audio.parentNode !== nativeAudioSlot) {
+      nativeAudioSlot.appendChild(refs.audio);
+    }
+
     refs.pageRoot.querySelectorAll("[data-audio-toggle]").forEach(function (button) {
       bindAudioToggleButton(button);
     });
