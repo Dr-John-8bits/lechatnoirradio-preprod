@@ -22,6 +22,7 @@
   --header-height: 88px;
   --bottom-nav-height: 84px;
   --player-height: 92px;
+  --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 
@@ -33,18 +34,21 @@
 
 html {
   scroll-behavior: smooth;
+  background-color: var(--bg);
 }
 
 body {
   margin: 0;
   min-height: 100vh;
   color: var(--text);
+  background-color: var(--bg);
   background:
     radial-gradient(circle at top, rgba(255, 255, 255, 0.05), transparent 26%),
     radial-gradient(circle at 82% 16%, rgba(242, 202, 80, 0.07), transparent 18%),
     linear-gradient(180deg, #070707 0%, #030303 100%);
   font-family: "Manrope", sans-serif;
   overflow-x: hidden;
+  overscroll-behavior-y: none;
 }
 
 [hidden] {
@@ -175,7 +179,10 @@ input[type="range"] {
   gap: 1rem;
   padding: 1rem 0 1rem;
   min-height: var(--header-height);
-  backdrop-filter: blur(18px);
+  background: rgba(5, 7, 12, 0.72);
+  backdrop-filter: blur(18px) saturate(112%);
+  -webkit-backdrop-filter: blur(18px) saturate(112%);
+  isolation: isolate;
 }
 
 .site-header::before {
@@ -183,7 +190,7 @@ input[type="range"] {
   position: absolute;
   inset: 0 -1rem;
   z-index: -1;
-  background: linear-gradient(180deg, rgba(5, 7, 12, 0.92), rgba(5, 7, 12, 0.25));
+  background: linear-gradient(180deg, rgba(5, 7, 12, 0.96), rgba(5, 7, 12, 0.34));
   mask-image: linear-gradient(180deg, rgba(0, 0, 0, 1), transparent);
 }
 
@@ -2104,6 +2111,18 @@ input[type="range"] {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .site-header {
+    background: rgba(5, 7, 12, 0.9);
+    backdrop-filter: blur(12px) saturate(108%);
+    -webkit-backdrop-filter: blur(12px) saturate(108%);
+  }
+
+  .site-header::before {
+    background: linear-gradient(180deg, rgba(5, 7, 12, 0.98), rgba(5, 7, 12, 0.5));
+  }
 }
 
 @media (min-width: 720px) {
