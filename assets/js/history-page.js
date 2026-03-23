@@ -21,12 +21,28 @@
 
   if (!refs.dayInput || !refs.timeInput || !refs.searchButton || !refs.list) return;
 
+  var displayPartsFormatter = null;
+  try {
+    displayPartsFormatter = new Intl.DateTimeFormat("en-GB", {
+      timeZone: DISPLAY_TIME_ZONE,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+  } catch (error) {
+    displayPartsFormatter = null;
+  }
+
   var state = {
     rows: [],
     fetchCacheRows: null,
     fetchCacheAt: 0,
     autoTimer: null,
     statusText: "Chargement des dernières diffusions…",
+    timezoneLabel: "UTC+01:00 / UTC+02:00 · " + DISPLAY_TIME_ZONE,
   };
 
   function asString(value) {
@@ -75,6 +91,72 @@
     return values;
   }
 
+  function getDisplayDateParts(value) {
+    var date = value instanceof Date ? value : new Date(value);
+    if (Number.isNaN(date.getTime())) return null;
+
+    if (displayPartsFormatter) {
+      try {
+        var parts = displayPartsFormatter.formatToParts(date);
+        var map = {};
+        parts.forEach(function (part) {
+          if (part.type !== "literal") map[part.type] = part.value;
+        });
+        return {
+          year: map.year,
+          month: map.month,
+          day: map.day,
+          hour: map.hour,
+          minute: map.minute,
+        };
+      } catch (error) {
+        return null;
+      }
+    }
+
+    return {
+      year: String(date.getFullYear()),
+      month: String(date.getMonth() + 1).padStart(2, "0"),
+      day: String(date.getDate()).padStart(2, "0"),
+      hour: String(date.getHours()).padStart(2, "0"),
+      minute: String(date.getMinutes()).padStart(2, "0"),
+    };
+  }
+
+  function enrichRow(baseRow) {
+    var parts = getDisplayDateParts(baseRow.tsIso);
+    if (!parts) return null;
+    var tsMs = Date.parse(baseRow.tsIso);
+    return {
+      tsIso: baseRow.tsIso,
+      tsMs: Number.isFinite(tsMs) ? tsMs : 0,
+      artist: baseRow.artist,
+      title: baseRow.title,
+      album: baseRow.album,
+      year: baseRow.year,
+      localYmd: parts.year + "-" + parts.month + "-" + parts.day,
+      localDate: parts.day + "/" + parts.month + "/" + parts.year,
+      localTime: parts.hour + ":" + parts.minute,
+      localMinutes: Number(parts.hour) * 60 + Number(parts.minute),
+    };
+  }
+
+  function ensureEnrichedRow(row) {
+    if (!row || !row.tsIso) return null;
+    if (
+      row.localYmd &&
+      row.localDate &&
+      row.localTime &&
+      typeof row.localMinutes === "number"
+    ) {
+      if (typeof row.tsMs !== "number") {
+        row.tsMs = Date.parse(row.tsIso) || 0;
+      }
+      return row;
+    }
+    return enrichRow(row);
+  }
+
   function parseCsvRows(csvText) {
     var normalized = String(csvText || "")
       .replace(/\r\n?/g, "\n")
@@ -87,52 +169,16 @@
       var line = lines[i];
       if (!line) continue;
       var cols = parseCsvLine(line);
-      parsed.push({
+      var enriched = enrichRow({
         tsIso: cols[0] || "",
         artist: cols[2] || "",
         title: cols[3] || "",
         album: cols[4] || "",
         year: cols[5] || "",
       });
+      if (enriched) parsed.push(enriched);
     }
-    return parsed.sort(function (a, b) {
-      return new Date(b.tsIso) - new Date(a.tsIso);
-    });
-  }
-
-  function getDisplayDateParts(value) {
-    var date = value instanceof Date ? value : new Date(value);
-    if (Number.isNaN(date.getTime())) return null;
-    try {
-      var parts = new Intl.DateTimeFormat("en-GB", {
-        timeZone: DISPLAY_TIME_ZONE,
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-      }).formatToParts(date);
-      var map = {};
-      parts.forEach(function (part) {
-        if (part.type !== "literal") map[part.type] = part.value;
-      });
-      return {
-        year: map.year,
-        month: map.month,
-        day: map.day,
-        hour: map.hour,
-        minute: map.minute,
-      };
-    } catch (error) {
-      return {
-        year: String(date.getFullYear()),
-        month: String(date.getMonth() + 1).padStart(2, "0"),
-        day: String(date.getDate()).padStart(2, "0"),
-        hour: String(date.getHours()).padStart(2, "0"),
-        minute: String(date.getMinutes()).padStart(2, "0"),
-      };
-    }
+    return parsed;
   }
 
   function normalizeUtcOffset(rawLabel) {
@@ -167,27 +213,47 @@
   }
 
   function formatLocalDate(isoDate) {
-    var parts = getDisplayDateParts(isoDate);
-    if (!parts) return "--";
-    return parts.day + "/" + parts.month + "/" + parts.year;
+    var enriched = enrichRow({
+      tsIso: isoDate,
+      artist: "",
+      title: "",
+      album: "",
+      year: "",
+    });
+    return enriched ? enriched.localDate : "--";
   }
 
   function formatLocalTime(isoDate) {
-    var parts = getDisplayDateParts(isoDate);
-    if (!parts) return "--:--";
-    return parts.hour + ":" + parts.minute;
+    var enriched = enrichRow({
+      tsIso: isoDate,
+      artist: "",
+      title: "",
+      album: "",
+      year: "",
+    });
+    return enriched ? enriched.localTime : "--:--";
   }
 
   function isSameLocalDay(isoDate, ymd) {
-    var parts = getDisplayDateParts(isoDate);
-    if (!parts) return false;
-    return parts.year + "-" + parts.month + "-" + parts.day === ymd;
+    var enriched = enrichRow({
+      tsIso: isoDate,
+      artist: "",
+      title: "",
+      album: "",
+      year: "",
+    });
+    return Boolean(enriched && enriched.localYmd === ymd);
   }
 
   function getDisplayMinutes(isoDate) {
-    var parts = getDisplayDateParts(isoDate);
-    if (!parts) return null;
-    return Number(parts.hour) * 60 + Number(parts.minute);
+    var enriched = enrichRow({
+      tsIso: isoDate,
+      artist: "",
+      title: "",
+      album: "",
+      year: "",
+    });
+    return enriched ? enriched.localMinutes : null;
   }
 
   function getTrackMeta(row) {
@@ -215,7 +281,11 @@
       if (!raw) return null;
       var rows = JSON.parse(raw);
       if (!Array.isArray(rows) || !rows.length) return null;
-      return rows;
+      return rows
+        .map(function (row) {
+          return ensureEnrichedRow(row);
+        })
+        .filter(Boolean);
     } catch (error) {
       return null;
     }
@@ -223,7 +293,12 @@
 
   function savePreviewRows(rows) {
     try {
-      var previewRows = (rows || []).slice(0, HISTORY_CACHE_MAX_ROWS);
+      var previewRows = (rows || [])
+        .slice(0, HISTORY_CACHE_MAX_ROWS)
+        .map(function (row) {
+          return ensureEnrichedRow(row);
+        })
+        .filter(Boolean);
       window.localStorage.setItem(HISTORY_CACHE_KEY, JSON.stringify(previewRows));
       window.localStorage.setItem(HISTORY_CACHE_AT_KEY, String(Date.now()));
     } catch (error) {
@@ -245,10 +320,10 @@
           '<li class="history-item">' +
           '<div class="history-item-head">' +
           '<span class="history-date history-stamp">' +
-          escapeHtml(formatLocalDate(row.tsIso)) +
+          escapeHtml(row.localDate || formatLocalDate(row.tsIso)) +
           "</span>" +
           '<span class="history-time history-stamp">' +
-          escapeHtml(formatLocalTime(row.tsIso)) +
+          escapeHtml(row.localTime || formatLocalTime(row.tsIso)) +
           "</span>" +
           "</div>" +
           '<div class="history-item-copy">' +
@@ -265,24 +340,28 @@
       .join("");
   }
 
+  function getLatestRowsForDay(ymd, limit) {
+    var rows = [];
+    for (var i = state.rows.length - 1; i >= 0 && rows.length < limit; i -= 1) {
+      var row = state.rows[i];
+      if (row && row.localYmd === ymd) rows.push(row);
+    }
+    return rows;
+  }
+
   function getDisplayRows() {
-    var rows = state.rows;
     var selectedDay = refs.dayInput.value || getTodayYmd();
     var selectedTime = refs.timeInput.value || "";
 
-    if (!selectedTime && selectedDay === getTodayYmd()) {
+    if (!selectedTime) {
       return {
-        label: "Derniers passages du jour",
-        rows: rows
-          .filter(function (row) {
-            return row.tsIso && isSameLocalDay(row.tsIso, selectedDay);
-          })
-          .slice(0, DEFAULT_VISIBLE_ROWS),
+        label: selectedDay === getTodayYmd() ? "Derniers passages du jour" : "Recherche ponctuelle : " + selectedDay,
+        rows: getLatestRowsForDay(selectedDay, DEFAULT_VISIBLE_ROWS),
       };
     }
 
-    var filtered = rows.filter(function (row) {
-      return row.tsIso && isSameLocalDay(row.tsIso, selectedDay);
+    var filtered = state.rows.filter(function (row) {
+      return row.localYmd === selectedDay;
     });
 
     if (selectedTime) {
@@ -291,27 +370,24 @@
       var minute = Number(tokens[1] || 0);
       var referenceMinutes = hour * 60 + minute;
       filtered.sort(function (a, b) {
-        var aMinutes = getDisplayMinutes(a.tsIso);
-        var bMinutes = getDisplayMinutes(b.tsIso);
-        return Math.abs((aMinutes == null ? 0 : aMinutes) - referenceMinutes) - Math.abs((bMinutes == null ? 0 : bMinutes) - referenceMinutes);
+        return (
+          Math.abs((a.localMinutes == null ? 0 : a.localMinutes) - referenceMinutes) -
+            Math.abs((b.localMinutes == null ? 0 : b.localMinutes) - referenceMinutes) ||
+          b.tsMs - a.tsMs
+        );
       });
       return {
         label: "Recherche ponctuelle : titres les plus proches de " + selectedTime,
         rows: filtered.slice(0, DEFAULT_VISIBLE_ROWS),
       };
     }
-
-    return {
-      label: "Recherche ponctuelle : " + selectedDay,
-      rows: filtered.slice(0, DEFAULT_VISIBLE_ROWS),
-    };
   }
 
   function renderView(emptyText) {
     var display = getDisplayRows();
     if (refs.modeLabel) refs.modeLabel.textContent = display.label;
     if (refs.statusText) refs.statusText.textContent = state.statusText;
-    if (refs.timezonePill) refs.timezonePill.textContent = getDisplayZoneLabel();
+    if (refs.timezonePill) refs.timezonePill.textContent = state.timezoneLabel;
     renderRows(display.rows, emptyText || "Aucun titre trouvé pour cette sélection.");
   }
 
@@ -354,6 +430,21 @@
     }, AUTO_MS);
   }
 
+  function scheduleInitialRefresh() {
+    if (typeof window.requestIdleCallback === "function") {
+      window.requestIdleCallback(function () {
+        refreshHistory();
+      }, { timeout: 240 });
+      return;
+    }
+
+    window.requestAnimationFrame(function () {
+      window.setTimeout(function () {
+        refreshHistory();
+      }, 120);
+    });
+  }
+
   function handleSearch() {
     if (!state.rows.length) {
       state.statusText = "Chargement des dernières diffusions…";
@@ -367,7 +458,8 @@
   function initialize() {
     refs.dayInput.value = getTodayYmd();
     refs.timeInput.value = "";
-    if (refs.timezonePill) refs.timezonePill.textContent = getDisplayZoneLabel();
+    state.timezoneLabel = getDisplayZoneLabel();
+    if (refs.timezonePill) refs.timezonePill.textContent = state.timezoneLabel;
 
     var previewRows = loadPreviewRows();
     if (previewRows && previewRows.length) {
@@ -397,12 +489,7 @@
       startAutoTimer();
     });
 
-    window.requestAnimationFrame(function () {
-      window.setTimeout(function () {
-        refreshHistory();
-      }, 60);
-    });
-
+    scheduleInitialRefresh();
     startAutoTimer();
   }
 
