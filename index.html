@@ -80,9 +80,16 @@
           <p id="dockState" class="dock-state">Appuyez sur lecture</p>
         </div>
 
-        <div id="dockTicker" class="marquee dock-marquee" aria-live="polite">
-          <div class="marquee-track">
-            <span id="dockTickerText" class="marquee-content">Chargement des métadonnées…</span>
+        <div class="dock-ticker-row">
+          <span id="dockLiveBadge" class="live-pill live-pill-dock" hidden>
+            <span class="live-pill-dot" aria-hidden="true"></span>
+            <span>ON AIR</span>
+          </span>
+
+          <div id="dockTicker" class="marquee dock-marquee" aria-live="polite">
+            <div class="marquee-track">
+              <span id="dockTickerText" class="marquee-content">Chargement des métadonnées…</span>
+            </div>
           </div>
         </div>
       </div>

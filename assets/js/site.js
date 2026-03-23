@@ -73,6 +73,7 @@
     dockVolumeOpen: false,
     heroVolumeOpen: false,
     historyFetchAt: 0,
+    isLive: false,
   };
 
   var refs = {
@@ -498,6 +499,10 @@
       '<button class="hero-play" type="button" aria-label="Lancer ou mettre en pause le direct" data-audio-toggle data-button-kind="hero"></button>' +
       "</div>" +
       '<div class="hero-ticker-row">' +
+      '<span id="heroLiveBadge" class="live-pill live-pill-hero" hidden>' +
+      '<span class="live-pill-dot" aria-hidden="true"></span>' +
+      "<span>ON AIR</span>" +
+      "</span>" +
       '<div class="hero-ticker-wrap">' +
       '<div id="heroTicker" class="marquee hero-marquee" aria-live="polite">' +
       '<div class="marquee-track">' +
@@ -737,7 +742,22 @@
     }
     if (dockChanged) refreshMarquee(refs.dockTicker);
     if (heroChanged) refreshMarquee(document.getElementById("heroTicker"));
+    updateLiveIndicators();
     updateMediaSession();
+  }
+
+  function isLiveTrack(meta) {
+    var artist = asString(meta && meta.artist);
+    var title = asString(meta && meta.title);
+    return /\(DIRECT\)/i.test(artist) || /^DIRECT\s*-/i.test(title);
+  }
+
+  function updateLiveIndicators() {
+    var live = Boolean(state.isLive);
+    var dockLiveBadge = document.getElementById("dockLiveBadge");
+    var heroLiveBadge = document.getElementById("heroLiveBadge");
+    if (dockLiveBadge) dockLiveBadge.hidden = !live;
+    if (heroLiveBadge) heroLiveBadge.hidden = !live;
   }
 
   function refreshMarquee(root) {
@@ -984,6 +1004,7 @@
     var previousSignature = getTrackSignature(state.currentTrack);
     var nextSignature = getTrackSignature(nextTrack);
     state.currentTrack = nextTrack;
+    state.isLive = isLiveTrack(nextTrack);
     if (nextSignature && nextSignature !== previousSignature) {
       syncRecentHistoryFromNowPlaying(nextTrack);
     }
