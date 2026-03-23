@@ -46,7 +46,7 @@
   />
   <link rel="stylesheet" href="assets/css/site.css" />
 </head>
-<body>
+<body class="route-home" data-page="home">
   <canvas
     id="starfieldCanvas"
     aria-hidden="true"
@@ -69,7 +69,7 @@
 
   <div class="site-shell">
     <header class="site-header">
-      <a class="brand" href="#/" aria-label="Retour à l'accueil Le Chat Noir">
+      <a class="brand" href="index.html" aria-label="Retour à l'accueil Le Chat Noir">
         <img class="brand-mark" src="assets/media/brand/logo.png" alt="" aria-hidden="true" />
         <span class="brand-copy">
           <strong>Le Chat Noir</strong>
@@ -79,7 +79,7 @@
 
     </header>
 
-    <main id="pageRoot" class="page-root" tabindex="-1" aria-live="polite"></main>
+    <main id="pageRoot" class="page-root" aria-live="polite"></main>
   </div>
 
   <div class="dock-shell">
@@ -135,19 +135,19 @@
   </div>
 
   <nav class="bottom-nav" aria-label="Navigation principale">
-    <a class="bottom-link" href="#/actualites" data-route-link="/actualites">
+    <a class="bottom-link" href="actualites.html" data-page-link="actualites" target="_blank" rel="noopener">
       <span class="icon-slot" data-icon="news"></span>
       <span>Actualités</span>
     </a>
-    <a class="bottom-link" href="#/grille" data-route-link="/grille">
+    <a class="bottom-link" href="grille.html" data-page-link="grille" target="_blank" rel="noopener">
       <span class="icon-slot" data-icon="schedule"></span>
       <span>Grille</span>
     </a>
-    <a class="bottom-link" href="#/producteurs" data-route-link="/producteurs">
+    <a class="bottom-link" href="voix.html" data-page-link="voix" target="_blank" rel="noopener">
       <span class="icon-slot" data-icon="voices"></span>
       <span>Voix</span>
     </a>
-    <a class="bottom-link" href="#/contact" data-route-link="/contact">
+    <a class="bottom-link" href="apropos.html" data-page-link="apropos" target="_blank" rel="noopener">
       <span class="icon-slot" data-icon="about"></span>
       <span>À propos</span>
     </a>

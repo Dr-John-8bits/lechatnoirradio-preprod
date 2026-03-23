@@ -329,7 +329,7 @@
   SCHEDULE_TIMELINE_DAYS = decorateScheduleDays(SCHEDULE_TIMELINE_DAYS);
 
   var state = {
-    route: normalizeRoute(window.location.hash),
+    route: getCurrentPageId(),
     currentTrack: {
       artist: "",
       album: "",
@@ -371,24 +371,21 @@
     audio: document.getElementById("radioAudio"),
   };
 
-  var hasRenderedInitialPage = false;
-
   function icon(name) {
     return ICONS[name] || "";
   }
 
-  function normalizeRoute(hashValue) {
-    var raw = String(hashValue || "").replace(/^#/, "");
-    var route = raw || "/";
+  function getCurrentPageId() {
+    var pageId = asString(document.body && document.body.getAttribute("data-page"));
     var allowed = {
-      "/": true,
-      "/actualites": true,
-      "/grille": true,
-      "/producteurs": true,
-      "/contact": true,
-      "/historique": true,
+      home: true,
+      actualites: true,
+      grille: true,
+      voix: true,
+      apropos: true,
+      historique: true,
     };
-    return allowed[route] ? route : "/";
+    return allowed[pageId] ? pageId : "home";
   }
 
   function asString(value) {
@@ -890,6 +887,9 @@
       "</a>" +
       "</div>" +
       "</div>" +
+      '<div class="native-player-shell">' +
+      '<div id="nativePlayerHost" class="native-player-host"></div>' +
+      "</div>" +
       "</div>" +
       "</div>" +
       '<div class="quick-panels">' +
@@ -900,7 +900,7 @@
       '<p class="section-intro">Les derniers contenus passés à l\'antenne, musique, émission ou autre forme sonore comprise.</p>' +
       "</div>" +
       '<ul id="homeRecentList" class="recent-list"></ul>' +
-      '<a class="panel-link" href="#/historique">' +
+      '<a class="panel-link" href="historique.html" target="_blank" rel="noopener">' +
       icon("arrow") +
       "<span>Afficher l'historique de diffusion</span>" +
       "</a>" +
@@ -921,7 +921,7 @@
       "</p>" +
       "</div>" +
       '<div id="homeTodayFocus" class="recent-list"></div>' +
-      '<a class="panel-link" href="#/grille">' +
+      '<a class="panel-link" href="grille.html" target="_blank" rel="noopener">' +
       icon("arrow") +
       "<span>Voir la grille complète</span>" +
       "</a>" +
@@ -1194,29 +1194,18 @@
     );
   }
 
-  function shouldMovePageFocus() {
-    try {
-      if (window.matchMedia && window.matchMedia("(hover: none), (pointer: coarse)").matches) {
-        return false;
-      }
-    } catch (error) {
-      return true;
-    }
-    return true;
-  }
-
   function renderPage() {
     if (!refs.pageRoot) return;
-    var shouldFocusPageRoot = hasRenderedInitialPage && shouldMovePageFocus();
-    document.body.classList.toggle("route-home", state.route === "/");
+    document.body.classList.toggle("route-home", state.route === "home");
     var html = "";
-    if (state.route === "/actualites") html = renderNewsPage();
-    if (state.route === "/grille") html = renderSchedulePage();
-    if (state.route === "/producteurs") html = renderProducersPage();
-    if (state.route === "/contact") html = renderContactPage();
-    if (state.route === "/historique") html = renderHistoryPage();
+    if (state.route === "actualites") html = renderNewsPage();
+    if (state.route === "grille") html = renderSchedulePage();
+    if (state.route === "voix") html = renderProducersPage();
+    if (state.route === "apropos") html = renderContactPage();
+    if (state.route === "historique") html = renderHistoryPage();
     if (!html) html = renderHomePage();
     refs.pageRoot.innerHTML = html;
+    attachNativePlayer();
     fillIconSlots(refs.pageRoot);
     bindPageEvents();
     updateUi();
@@ -1224,10 +1213,17 @@
       refreshMarquee(refs.dockTicker);
       refreshMarquee(document.getElementById("heroTicker"));
     });
-    if (shouldFocusPageRoot && typeof refs.pageRoot.focus === "function") {
-      refs.pageRoot.focus({ preventScroll: true });
+  }
+
+  function attachNativePlayer() {
+    if (state.route !== "home" || !refs.audio) return;
+    var host = document.getElementById("nativePlayerHost");
+    if (!host) return;
+    refs.audio.className = "native-audio-player";
+    refs.audio.setAttribute("controls", "controls");
+    if (refs.audio.parentNode !== host) {
+      host.appendChild(refs.audio);
     }
-    hasRenderedInitialPage = true;
   }
 
   function fillIconSlots(scope) {
@@ -1264,8 +1260,8 @@
   }
 
   function updateRouteLinks() {
-    document.querySelectorAll("[data-route-link]").forEach(function (link) {
-      var route = link.getAttribute("data-route-link");
+    document.querySelectorAll("[data-page-link]").forEach(function (link) {
+      var route = link.getAttribute("data-page-link");
       link.classList.toggle("is-active", route === state.route);
     });
   }
@@ -2104,14 +2100,6 @@
       });
     }
 
-    window.addEventListener("hashchange", function () {
-      state.route = normalizeRoute(window.location.hash);
-      setDockVolumePopover(false);
-      setHeroVolumePopover(false);
-      renderPage();
-      window.scrollTo(0, 0);
-    });
-
     window.addEventListener("resize", function () {
       refreshMarquee(refs.dockTicker);
       refreshMarquee(document.getElementById("heroTicker"));
@@ -2138,6 +2126,7 @@
   }
 
   function bindAudioEvents() {
+    if (!refs.audio) return;
     refs.audio.volume = state.volume;
 
     refs.audio.addEventListener("pointerdown", markUserGesture);
@@ -2221,16 +2210,21 @@
 
   function initialize() {
     bindShellEvents();
-    bindAudioEvents();
     renderPage();
-    setVolume(state.volume);
     updateUi();
-
-    refreshHistory();
-    refreshNowPlaying();
-
-    window.setInterval(refreshNowPlaying, 12000);
-    window.setInterval(refreshHistory, 20000);
+    if (state.route === "home") {
+      bindAudioEvents();
+      setVolume(state.volume);
+      refreshHistory();
+      refreshNowPlaying();
+      window.setInterval(refreshNowPlaying, 12000);
+      window.setInterval(refreshHistory, 20000);
+      return;
+    }
+    if (state.route === "historique") {
+      refreshHistory();
+      window.setInterval(refreshHistory, 20000);
+    }
   }
 
   initialize();
