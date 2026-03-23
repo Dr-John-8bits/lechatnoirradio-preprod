@@ -7,6 +7,7 @@
   var CONTACT_EMAIL = "radio@lechatnoirradio.fr";
   var VOLUME_STORAGE_KEY = "lcn-player-volume";
   var DISPLAY_TIME_ZONE = "Europe/Paris";
+  var USER_GESTURE_WINDOW_MS = 1600;
 
   var ICONS = {
     play:
@@ -348,6 +349,7 @@
     connectionState: "idle",
     reconnectAttempts: 0,
     lastProgressAt: Date.now(),
+    lastUserGestureAt: 0,
     reconnectTimer: null,
     stallTimer: null,
     suppressPauseIntent: false,
@@ -786,6 +788,10 @@
     return STREAM_URL + "?t=" + Date.now();
   }
 
+  function markUserGesture() {
+    state.lastUserGestureAt = Date.now();
+  }
+
   function buildMailtoHref(action) {
     return (
       "mailto:" +
@@ -1174,9 +1180,20 @@
     );
   }
 
+  function shouldMovePageFocus() {
+    try {
+      if (window.matchMedia && window.matchMedia("(hover: none), (pointer: coarse)").matches) {
+        return false;
+      }
+    } catch (error) {
+      return true;
+    }
+    return true;
+  }
+
   function renderPage() {
     if (!refs.pageRoot) return;
-    var shouldFocusPageRoot = hasRenderedInitialPage;
+    var shouldFocusPageRoot = hasRenderedInitialPage && shouldMovePageFocus();
     document.body.classList.toggle("route-home", state.route === "/");
     var html = "";
     if (state.route === "/actualites") html = renderNewsPage();
@@ -1717,6 +1734,7 @@
     state.connectionState = "loading";
     updateUi();
     clearReconnectTimer();
+    clearStallTimer();
 
     try {
       state.suppressPauseIntent = true;
@@ -1755,7 +1773,40 @@
     }
   }
 
+  async function requestPlayback() {
+    state.connectionState = "loading";
+    updateUi();
+    clearReconnectTimer();
+    clearStallTimer();
+
+    try {
+      if (!refs.audio.src) {
+        refs.audio.src = buildStreamUrl(false);
+      }
+      var playPromise = refs.audio.play();
+      if (playPromise && typeof playPromise.then === "function") {
+        await playPromise;
+      }
+      state.userWantsPlay = true;
+      state.connectionState = "playing";
+      updateUi();
+    } catch (error) {
+      state.reconnectAttempts = Math.min(state.reconnectAttempts + 1, 8);
+      var blockedByPolicy =
+        error &&
+        (error.name === "NotAllowedError" || error.name === "SecurityError");
+      if (blockedByPolicy) {
+        state.userWantsPlay = false;
+        state.connectionState = "blocked";
+        updateUi();
+        return;
+      }
+      scheduleReconnect("play-failed", false);
+    }
+  }
+
   function pausePlayback() {
+    markUserGesture();
     state.userWantsPlay = false;
     state.connectionState = "idle";
     clearReconnectTimer();
@@ -1769,8 +1820,9 @@
       pausePlayback();
       return;
     }
+    markUserGesture();
     state.userWantsPlay = true;
-    attemptPlayback(state.usingCacheBustSource);
+    requestPlayback();
   }
 
   function applyCurrentTrack(meta) {
@@ -1932,6 +1984,10 @@
 
   function bindPageEvents() {
     refs.pageRoot.querySelectorAll("[data-audio-toggle]").forEach(function (button) {
+      button.addEventListener("pointerdown", markUserGesture);
+      button.addEventListener("mousedown", markUserGesture);
+      button.addEventListener("touchstart", markUserGesture, { passive: true });
+      button.addEventListener("keydown", markUserGesture);
       button.addEventListener("click", togglePlayback);
     });
 
@@ -2025,6 +2081,10 @@
     renderPlayButtons();
     updateRouteLinks();
 
+    refs.dockToggle.addEventListener("pointerdown", markUserGesture);
+    refs.dockToggle.addEventListener("mousedown", markUserGesture);
+    refs.dockToggle.addEventListener("touchstart", markUserGesture, { passive: true });
+    refs.dockToggle.addEventListener("keydown", markUserGesture);
     refs.dockToggle.addEventListener("click", togglePlayback);
     if (refs.dockVolumeButton) {
       refs.dockVolumeButton.addEventListener("click", function () {
@@ -2073,6 +2133,11 @@
   function bindAudioEvents() {
     refs.audio.volume = state.volume;
 
+    refs.audio.addEventListener("pointerdown", markUserGesture);
+    refs.audio.addEventListener("mousedown", markUserGesture);
+    refs.audio.addEventListener("touchstart", markUserGesture, { passive: true });
+    refs.audio.addEventListener("keydown", markUserGesture);
+
     refs.audio.addEventListener("play", function () {
       state.isPlaying = true;
       state.userWantsPlay = true;
@@ -2083,6 +2148,19 @@
     refs.audio.addEventListener("pause", function () {
       state.isPlaying = false;
       if (state.suppressPauseIntent) {
+        updateUi();
+        return;
+      }
+      if (refs.audio.ended) {
+        updateUi();
+        return;
+      }
+      var likelyUserPause = Date.now() - state.lastUserGestureAt <= USER_GESTURE_WINDOW_MS;
+      if (likelyUserPause) {
+        state.userWantsPlay = false;
+        state.connectionState = "idle";
+        clearReconnectTimer();
+        clearStallTimer();
         updateUi();
         return;
       }

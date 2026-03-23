@@ -261,6 +261,12 @@ input[type="range"] {
 
 .page-root {
   padding: 1.2rem 0 0;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.page-root:focus {
+  outline: none;
 }
 
 .page {
@@ -1921,6 +1927,7 @@ input[type="range"] {
   font-size: 0.7rem;
   font-weight: 700;
   transition: transform 180ms ease, color 180ms ease, background 180ms ease;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .bottom-link .icon-slot {
@@ -1931,6 +1938,16 @@ input[type="range"] {
 .bottom-link:hover {
   color: var(--gold);
   background: rgba(242, 202, 80, 0.08);
+}
+
+.bottom-link:active {
+  color: var(--gold);
+  background: rgba(242, 202, 80, 0.12);
+  transform: translateY(-1px) scale(0.985);
+}
+
+.bottom-link:active .icon-slot {
+  color: var(--gold);
 }
 
 .bottom-link:hover .icon-slot {
