@@ -348,16 +348,7 @@
     selectedDayId: getCurrentDayId(),
     volume: loadSavedVolume(),
     isPlaying: false,
-    userWantsPlay: false,
     connectionState: "idle",
-    reconnectAttempts: 0,
-    lastProgressAt: Date.now(),
-    lastUserGestureAt: 0,
-    reconnectTimer: null,
-    stallTimer: null,
-    suppressPauseIntent: false,
-    manualPausePending: false,
-    usingCacheBustSource: false,
     dockVolumeOpen: false,
     heroVolumeOpen: false,
     contactMode: "son",
@@ -784,17 +775,7 @@
     }
   }
 
-  function buildStreamUrl(cacheBust) {
-    if (!cacheBust) return STREAM_URL;
-    return STREAM_URL + "?t=" + Date.now();
-  }
-
-  function markUserGesture() {
-    state.lastUserGestureAt = Date.now();
-  }
-
-  function handleAudioToggleInteraction(event) {
-    markUserGesture();
+  function handleAudioToggleInteraction() {
     togglePlayback();
   }
 
@@ -1696,20 +1677,7 @@
     }
   }
 
-  function clearReconnectTimer() {
-    if (!state.reconnectTimer) return;
-    window.clearTimeout(state.reconnectTimer);
-    state.reconnectTimer = null;
-  }
-
-  function clearStallTimer() {
-    if (!state.stallTimer) return;
-    window.clearTimeout(state.stallTimer);
-    state.stallTimer = null;
-  }
-
   function markAudioProgress() {
-    state.lastProgressAt = Date.now();
     state.connectionState = "playing";
     updateUi();
   }
@@ -1718,14 +1686,11 @@
     var blockedByPolicy =
       error &&
       (error.name === "NotAllowedError" || error.name === "SecurityError");
-    state.userWantsPlay = false;
     state.connectionState = blockedByPolicy ? "blocked" : "idle";
     updateUi();
   }
 
   function requestPlayback() {
-    state.manualPausePending = false;
-    state.userWantsPlay = true;
     state.connectionState = "loading";
     updateUi();
 
@@ -1741,22 +1706,18 @@
   }
 
   function pausePlayback() {
-    markUserGesture();
-    state.manualPausePending = true;
-    state.userWantsPlay = false;
     state.connectionState = "idle";
-    clearReconnectTimer();
-    clearStallTimer();
     refs.audio.pause();
     updateUi();
   }
 
   function togglePlayback() {
-    if (state.isPlaying || state.userWantsPlay) {
-      pausePlayback();
+    if (!refs.audio) return;
+    if (refs.audio.paused || refs.audio.ended) {
+      requestPlayback();
       return;
     }
-    requestPlayback();
+    pausePlayback();
   }
 
   function applyCurrentTrack(meta) {
@@ -2053,68 +2014,39 @@
     if (!refs.audio) return;
     refs.audio.controls = false;
     refs.audio.removeAttribute("controls");
+    refs.audio.preload = "none";
     refs.audio.volume = state.volume;
 
     refs.audio.addEventListener("play", function () {
       state.isPlaying = true;
-      state.userWantsPlay = true;
-      state.manualPausePending = false;
       state.connectionState = "playing";
       updateUi();
     });
 
     refs.audio.addEventListener("pause", function () {
       state.isPlaying = false;
-      if (state.suppressPauseIntent) {
-        updateUi();
-        return;
-      }
-      if (state.manualPausePending) {
-        state.manualPausePending = false;
-        state.userWantsPlay = false;
-        state.connectionState = "idle";
-        clearReconnectTimer();
-        clearStallTimer();
-        updateUi();
-        return;
-      }
-      if (refs.audio.ended) {
-        updateUi();
-        return;
-      }
-      state.userWantsPlay = false;
       state.connectionState = "idle";
       updateUi();
     });
 
     refs.audio.addEventListener("playing", markAudioProgress);
-    refs.audio.addEventListener("timeupdate", markAudioProgress);
-    refs.audio.addEventListener("progress", markAudioProgress);
     refs.audio.addEventListener("canplay", markAudioProgress);
-    refs.audio.addEventListener("canplaythrough", markAudioProgress);
 
     refs.audio.addEventListener("waiting", function () {
-      if (!state.userWantsPlay) return;
+      if (refs.audio.paused) return;
       state.connectionState = "loading";
       updateUi();
     });
     refs.audio.addEventListener("stalled", function () {
-      if (!state.userWantsPlay) return;
-      state.connectionState = "loading";
-      updateUi();
-    });
-    refs.audio.addEventListener("suspend", function () {
-      if (!state.userWantsPlay) return;
+      if (refs.audio.paused) return;
       state.connectionState = "loading";
       updateUi();
     });
     refs.audio.addEventListener("ended", function () {
-      state.userWantsPlay = false;
       state.connectionState = "idle";
       updateUi();
     });
     refs.audio.addEventListener("emptied", function () {
-      if (!state.userWantsPlay) return;
       state.connectionState = "idle";
       updateUi();
     });

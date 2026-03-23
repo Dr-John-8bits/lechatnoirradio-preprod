@@ -156,9 +156,12 @@
   <audio
     id="radioAudio"
     src="https://stream.lechatnoirradio.fr/stream.mp3"
-    preload="metadata"
+    preload="none"
     crossorigin="anonymous"
     playsinline
+    webkit-playsinline
+    aria-hidden="true"
+    tabindex="-1"
   >
     Votre navigateur ne supporte pas l'audio HTML5.
   </audio>
