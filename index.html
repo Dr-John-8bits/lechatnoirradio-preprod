@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Le Chat Noir — Laboratoire radiophonique indépendant</title>
+  <meta
+    name="description"
+    content="Le Chat Noir, webradio indépendante, auto-hébergée et artisanale. Écoute en direct, grille des programmes, voix et historique de diffusion."
+  />
+  <meta name="theme-color" content="#05070c" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Le Chat Noir" />
+  <link rel="canonical" href="https://lechatnoirradio.fr/" />
+  <link rel="icon" type="image/png" href="favicon.png" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="fr_FR" />
+  <meta property="og:site_name" content="Le Chat Noir" />
+  <meta property="og:title" content="Le Chat Noir — Laboratoire radiophonique indépendant" />
+  <meta
+    property="og:description"
+    content="Une radio indépendante, auto-hébergée et artisanale, pensée comme un laboratoire d'écoute, de créations sonores et de diffusion."
+  />
+  <meta property="og:url" content="https://lechatnoirradio.fr/" />
+  <meta property="og:image" content="https://lechatnoirradio.fr/assets/media/brand/logo.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Le Chat Noir — Laboratoire radiophonique indépendant" />
+  <meta
+    name="twitter:description"
+    content="Direct, grille, voix et historique dans une interface mobile-first pensée pour l'écoute."
+  />
+  <meta name="twitter:image" content="https://lechatnoirradio.fr/assets/media/brand/logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Epilogue:wght@500;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+  <link
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="assets/css/site.css" />
+</head>
+<body>
+  <canvas
+    id="starfieldCanvas"
+    aria-hidden="true"
+    data-stars-mobile="92"
+    data-stars-desktop="172"
+  ></canvas>
+
+  <canvas
+    id="ufoOverlayCanvas"
+    aria-hidden="true"
+    data-ufos-mobile="1"
+    data-ufos-desktop="3"
+  ></canvas>
+
+  <div class="scene-layers" aria-hidden="true">
+    <div class="scene-glow scene-glow-a"></div>
+    <div class="scene-glow scene-glow-b"></div>
+    <div class="scene-grid"></div>
+  </div>
+
+  <div class="site-shell">
+    <header class="site-header">
+      <a class="brand" href="#/" aria-label="Retour à l'accueil Le Chat Noir">
+        <img class="brand-mark" src="assets/media/brand/logo.png" alt="" aria-hidden="true" />
+        <span class="brand-copy">
+          <strong>Le Chat Noir</strong>
+          <span>Laboratoire radiophonique indépendant</span>
+        </span>
+      </a>
+
+    </header>
+
+    <main id="pageRoot" class="page-root" tabindex="-1" aria-live="polite"></main>
+  </div>
+
+  <div class="dock-shell">
+    <section class="player-dock" aria-label="Lecteur audio persistant">
+      <button
+        id="dockToggle"
+        class="dock-toggle"
+        type="button"
+        aria-label="Lancer ou mettre en pause le direct"
+        data-audio-toggle
+        data-button-kind="dock"
+      >
+        <span class="dock-toggle-icon"></span>
+      </button>
+
+      <div class="dock-center">
+        <div class="dock-topline">
+          <p id="dockState" class="dock-state">Appuyez sur lecture</p>
+        </div>
+
+        <div id="dockTicker" class="marquee dock-marquee" aria-live="polite">
+          <div class="marquee-track">
+            <span id="dockTickerText" class="marquee-content">Chargement des métadonnées…</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="dock-volume-wrap">
+        <button
+          id="dockVolumeButton"
+          class="dock-volume-button"
+          type="button"
+          aria-label="Afficher le réglage du volume"
+          aria-expanded="false"
+          aria-controls="dockVolumePopover"
+        >
+          <span class="icon-slot" data-icon="volume"></span>
+        </button>
+        <div id="dockVolumePopover" class="dock-volume-popover" hidden>
+          <input
+            id="dockVolumeRange"
+            class="dock-volume-range"
+            type="range"
+            min="0"
+            max="100"
+            step="1"
+            value="72"
+            aria-label="Régler le volume du player flottant"
+          />
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <nav class="bottom-nav" aria-label="Navigation principale">
+    <a class="bottom-link" href="#/actualites" data-route-link="/actualites">
+      <span class="icon-slot" data-icon="news"></span>
+      <span>Actualités</span>
+    </a>
+    <a class="bottom-link" href="#/grille" data-route-link="/grille">
+      <span class="icon-slot" data-icon="schedule"></span>
+      <span>Grille</span>
+    </a>
+    <a class="bottom-link" href="#/producteurs" data-route-link="/producteurs">
+      <span class="icon-slot" data-icon="voices"></span>
+      <span>Voix</span>
+    </a>
+    <a class="bottom-link" href="#/contact" data-route-link="/contact">
+      <span class="icon-slot" data-icon="about"></span>
+      <span>À propos</span>
+    </a>
+  </nav>
+
+  <audio id="radioAudio" preload="none" crossorigin="anonymous" playsinline>
+    <source src="https://stream.lechatnoirradio.fr/stream.mp3" type="audio/mpeg" />
+    Votre navigateur ne supporte pas l'audio HTML5.
+  </audio>
+
+  <noscript>
+    <div class="noscript-banner">
+      Le nouveau site a besoin de JavaScript pour garder le player actif pendant la navigation.
+      Le flux reste disponible ici :
+      <a href="https://stream.lechatnoirradio.fr/stream.mp3">https://stream.lechatnoirradio.fr/stream.mp3</a>
+    </div>
+  </noscript>
+
+  <script src="assets/js/starfield-ufo.js"></script>
+  <script src="assets/js/news-data.js"></script>
+  <script src="assets/js/site.js"></script>
+</body>
+</html>
