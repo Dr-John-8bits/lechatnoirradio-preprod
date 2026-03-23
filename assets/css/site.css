@@ -43,8 +43,9 @@ body {
   color: var(--text);
   background-color: var(--bg);
   background:
-    radial-gradient(circle at top, rgba(255, 255, 255, 0.05), transparent 26%),
-    radial-gradient(circle at 82% 16%, rgba(242, 202, 80, 0.07), transparent 18%),
+    radial-gradient(circle at top, rgba(255, 255, 255, 0.045), transparent 24%),
+    radial-gradient(circle at 78% 14%, rgba(242, 202, 80, 0.08), transparent 16%),
+    radial-gradient(circle at 18% 88%, rgba(255, 255, 255, 0.028), transparent 18%),
     linear-gradient(180deg, #070707 0%, #030303 100%);
   font-family: "Manrope", sans-serif;
   overflow-x: hidden;
@@ -106,71 +107,6 @@ input[type="range"] {
   place-items: center;
   overflow: hidden;
   border-radius: 999px;
-}
-
-#starfieldCanvas {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  opacity: 1;
-  mix-blend-mode: normal;
-}
-
-#ufoOverlayCanvas {
-  position: fixed;
-  inset: 0;
-  z-index: 18;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  opacity: 0.88;
-  mix-blend-mode: screen;
-}
-
-.scene-layers {
-  position: fixed;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  overflow: hidden;
-}
-
-.scene-glow {
-  position: absolute;
-  border-radius: 999px;
-  filter: blur(32px);
-}
-
-.scene-glow-a {
-  top: -12%;
-  left: -8%;
-  width: 26rem;
-  height: 26rem;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.15), transparent 68%);
-  animation: glowDriftA 16s ease-in-out infinite;
-}
-
-.scene-glow-b {
-  right: -14%;
-  bottom: 8%;
-  width: 22rem;
-  height: 22rem;
-  background: radial-gradient(circle, rgba(242, 202, 80, 0.12), transparent 72%);
-  animation: glowDriftB 18s ease-in-out infinite;
-}
-
-.scene-grid {
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.024) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.024) 1px, transparent 1px);
-  background-size: 72px 72px;
-  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.2), transparent 78%);
-  opacity: 0.08;
 }
 
 .site-shell {
@@ -2338,26 +2274,6 @@ input[type="range"] {
     animation: none !important;
     transition-duration: 0ms !important;
     scroll-behavior: auto !important;
-  }
-}
-
-@keyframes glowDriftA {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0);
-  }
-  50% {
-    transform: translate3d(3rem, 2rem, 0);
-  }
-}
-
-@keyframes glowDriftB {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0);
-  }
-  50% {
-    transform: translate3d(-2rem, -2.2rem, 0);
   }
 }
 
