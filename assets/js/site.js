@@ -344,6 +344,7 @@
       year: "",
     },
     historyRows: [],
+    sortedHistoryRows: [],
     historyStatus: "Chargement de l'historique…",
     searchDay: getTodayYmd(),
     searchTime: "",
@@ -1221,6 +1222,18 @@
     }
   }
 
+  function setHistoryRows(rows) {
+    state.historyRows = Array.isArray(rows) ? rows : [];
+    state.sortedHistoryRows = getSortedHistoryRows(state.historyRows);
+  }
+
+  function getHistoryRowsSorted() {
+    if (state.sortedHistoryRows && state.sortedHistoryRows.length) {
+      return state.sortedHistoryRows;
+    }
+    return getSortedHistoryRows(state.historyRows);
+  }
+
   function fillIconSlots(scope) {
     var root = scope || document;
     root.querySelectorAll(".icon-slot[data-icon]").forEach(function (node) {
@@ -1330,7 +1343,7 @@
   function renderHomeRecentList() {
     var root = document.getElementById("homeRecentList");
     if (!root) return;
-    var rows = getSortedHistoryRows(state.historyRows).slice(0, 5);
+    var rows = getHistoryRowsSorted().slice(0, 5);
     if (!rows.length) {
       root.innerHTML = '<li class="history-empty">Les derniers titres apparaîtront ici dès que le CSV est chargé.</li>';
       return;
@@ -1495,7 +1508,7 @@
   }
 
   function getHistoryDisplayRows() {
-    var rows = getSortedHistoryRows(state.historyRows);
+    var rows = getHistoryRowsSorted();
     if (state.historyMode !== "search") {
       var latestDay = state.searchDay || getTodayYmd();
       return {
@@ -1546,13 +1559,12 @@
     if (state.historyMode !== "search") {
       state.searchDay = getTodayYmd();
     }
+    var display = getHistoryDisplayRows();
     if (dayInput) dayInput.value = state.searchDay;
     if (timeInput) timeInput.value = state.searchTime;
-    if (modeLabel) modeLabel.textContent = getHistoryDisplayRows().label;
+    if (modeLabel) modeLabel.textContent = display.label;
     if (statusText) statusText.textContent = state.historyStatus;
     if (timezonePill) timezonePill.textContent = getDisplayZoneLabel();
-
-    var display = getHistoryDisplayRows();
     if (!display.rows.length) {
       root.innerHTML = '<li class="history-empty">Aucun titre trouvé pour cette sélection.</li>';
       return;
@@ -1775,7 +1787,13 @@
     try {
       var response = await fetch(HISTORY_CSV_URL + "?t=" + Date.now(), { cache: "no-store" });
       if (!response.ok) throw new Error(String(response.status));
-      state.historyRows = parseCsvRows(await response.text());
+      var csvText = await response.text();
+      if (state.route === "historique") {
+        await new Promise(function (resolve) {
+          window.setTimeout(resolve, 0);
+        });
+      }
+      setHistoryRows(parseCsvRows(csvText));
       saveHistoryCache(state.historyRows);
       state.historyStatus = "Source : history/nowplaying.csv • mise à jour active";
       renderHomeRecentList();
@@ -2099,11 +2117,15 @@
     if (state.route === "historique") {
       var cachedRows = loadHistoryCache();
       if (cachedRows && cachedRows.length) {
-        state.historyRows = cachedRows;
+        setHistoryRows(cachedRows);
         state.historyStatus = "Chargement des dernières diffusions…";
         renderHistoryView();
       }
-      refreshHistory();
+      window.requestAnimationFrame(function () {
+        window.setTimeout(function () {
+          refreshHistory();
+        }, 120);
+      });
       window.setInterval(refreshHistory, 20000);
     }
   }
