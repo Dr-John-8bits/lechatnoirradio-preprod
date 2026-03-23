@@ -2051,6 +2051,8 @@
 
   function bindAudioEvents() {
     if (!refs.audio) return;
+    refs.audio.controls = false;
+    refs.audio.removeAttribute("controls");
     refs.audio.volume = state.volume;
 
     refs.audio.addEventListener("play", function () {
