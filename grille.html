@@ -40,7 +40,24 @@
       </a>
     </header>
 
-    <main id="pageRoot" class="page-root" aria-live="polite"></main>
+    <main class="page-root" aria-live="polite">
+      <section class="page">
+        <header class="page-header surface-panel">
+          <p class="eyebrow">Grille des programmes</p>
+          <h1 class="page-title">La semaine en clair</h1>
+          <p class="page-subtitle">Les nuits, les matinées, les rendez-vous fixes, les focus et les dérives qui donnent son rythme à la radio.</p>
+        </header>
+
+        <section class="surface-panel page">
+          <div id="scheduleSwitcher" class="day-switcher" role="tablist" aria-label="Choisir un jour de la grille"></div>
+          <div id="schedulePanel">
+            <article class="schedule-card">
+              <p class="card-text">Chargement de la grille…</p>
+            </article>
+          </div>
+        </section>
+      </section>
+    </main>
   </div>
 
   <nav class="bottom-nav" aria-label="Navigation principale">
@@ -62,7 +79,8 @@
     </a>
   </nav>
 
-  <script src="assets/js/news-data.js"></script>
-  <script src="assets/js/site.js"></script>
+  <script src="assets/js/content-data.js"></script>
+  <script src="assets/js/page-common.js"></script>
+  <script src="assets/js/schedule-page.js"></script>
 </body>
 </html>

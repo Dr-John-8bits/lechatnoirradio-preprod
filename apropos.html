@@ -40,7 +40,61 @@
       </a>
     </header>
 
-    <main id="pageRoot" class="page-root" aria-live="polite"></main>
+    <main class="page-root" aria-live="polite">
+      <section class="page">
+        <section class="surface-panel about-shell">
+          <div class="about-layout">
+            <div class="about-media" aria-hidden="true">
+              <div class="about-totem">
+                <div class="about-logo-frame">
+                  <img class="about-logo" src="assets/media/brand/logo.png" alt="" loading="lazy" />
+                </div>
+              </div>
+            </div>
+
+            <div class="about-content">
+              <div class="section-heading">
+                <p class="section-kicker">À propos</p>
+                <h1 class="page-title about-title">Un laboratoire radiophonique indépendant</h1>
+              </div>
+              <p class="about-lead about-line">
+                <i class="fa-solid fa-tower-broadcast about-fa" aria-hidden="true"></i>
+                <span>Le Chat Noir est une webradio artisanale, indépendante et autogérée, dédiée aux créations sonores et musicales.</span>
+              </p>
+              <div class="about-copy">
+                <p class="about-paragraph about-line">
+                  <i class="fa-solid fa-wave-square about-fa" aria-hidden="true"></i>
+                  <span>Elle diffuse en continu des créations libres : paysages sonores, field recordings, expérimentations radiophoniques, émissions et musiques de tous horizons, sans cloisonnement rigide.</span>
+                </p>
+                <p class="about-paragraph about-line">
+                  <i class="fa-solid fa-sliders about-fa" aria-hidden="true"></i>
+                  <span>La radio assume une écoute lente entre fiction et réel, et respecte les dynamiques des œuvres sans compression globale imposée à l'antenne.</span>
+                </p>
+                <p class="about-paragraph about-line">
+                  <i class="fa-solid fa-house-signal about-fa" aria-hidden="true"></i>
+                  <span>Tout est fait maison, hébergé, programmé et maintenu localement. Une radio de proximité cosmique, née dans une courée, tournée vers l'espace.</span>
+                </p>
+              </div>
+              <div id="aboutChipRow" class="about-chip-row"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="surface-panel contrib-shell">
+          <div class="section-heading">
+            <p class="section-kicker">Contribution</p>
+            <h2 class="section-title">Écrire à la radio</h2>
+            <p class="section-intro">Une idée, un son, une correction ou une demande de retrait ? Écris-nous, on te répond rapidement.</p>
+          </div>
+          <div id="contribSwitcher" class="contrib-switcher" role="tablist" aria-label="Choisir un mode de contribution"></div>
+          <article id="contribPanel" class="contrib-panel">
+            <p class="card-text">Chargement des options de contact…</p>
+          </article>
+        </section>
+
+        <p class="about-signature">· Le Chat Noir avec Dr. John · mars 2026</p>
+      </section>
+    </main>
   </div>
 
   <nav class="bottom-nav" aria-label="Navigation principale">
@@ -62,7 +116,8 @@
     </a>
   </nav>
 
-  <script src="assets/js/news-data.js"></script>
-  <script src="assets/js/site.js"></script>
+  <script src="assets/js/content-data.js"></script>
+  <script src="assets/js/page-common.js"></script>
+  <script src="assets/js/about-page.js"></script>
 </body>
 </html>

@@ -1244,6 +1244,10 @@ input[type="range"] {
   gap: 0.55rem;
 }
 
+.news-year-switcher {
+  grid-template-columns: repeat(auto-fit, minmax(5.75rem, 1fr));
+}
+
 .day-chip {
   min-height: 3.35rem;
   padding: 0.65rem 0.3rem;

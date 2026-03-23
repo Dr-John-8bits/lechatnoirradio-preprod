@@ -7,7 +7,6 @@
   var APP_ICON_180_URL = new URL("apple-touch-icon.png", window.location.href).href;
   var APP_ICON_192_URL = new URL("icon-192.png", window.location.href).href;
   var APP_ICON_512_URL = new URL("icon-512.png", window.location.href).href;
-  var CONTACT_EMAIL = "radio@lechatnoirradio.fr";
   var VOLUME_STORAGE_KEY = "lcn-player-volume";
   var DISPLAY_TIME_ZONE = "Europe/Paris";
   var HISTORY_CACHE_KEY = "lcn-history-preview-v1";
@@ -44,296 +43,13 @@
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg>',
   };
 
-  var NEWS_ITEMS =
-    typeof window !== "undefined" && Array.isArray(window.LCN_NEWS_ITEMS)
-      ? window.LCN_NEWS_ITEMS
-      : [];
-
-  var PRODUCERS = [
-    {
-      role: "Production",
-      name: "Dr. John",
-      image: "assets/media/producers/drjohn.jpg",
-      bio: "Explore les zones floues entre réalité sonore, fiction radiophonique et écoute lente.",
-    },
-    {
-      role: "Découverte",
-      name: "Julien",
-      image: "assets/media/producers/julien.jpg",
-      bio: "Traverse la synthèse analogique par l'essai, l'apprentissage et l'expérimentation continue.",
-    },
-    {
-      role: "Chronique",
-      name: "Lady Em",
-      image: "assets/media/producers/ladyem.webp",
-      bio: "Installe sa chronique du vestiaire dans la grille, entre velvet tips et contre-champ élégant.",
-    },
-    {
-      role: "Jingles",
-      name: "Les potes",
-      image: "assets/media/producers/potes.webp",
-      bio: "Prêtent voix, idées et impulsions aux jingles, aux accroches et à la texture collective de la radio.",
-    },
-  ];
-
-  var SHOWS = [
-    {
-      meta: "Émission",
-      title: "L'Autre Nuit",
-      image: "assets/media/shows/lautrenuit.png",
-      text: "Lectures sans centre, voix fatiguées et machines hésitantes pour les heures qui dérivent.",
-      href: "https://audioblog.arteradio.com/blog/263269/le-chat-noir",
-      actionLabelLines: ["Écouter", "le podcast"],
-    },
-    {
-      meta: "Fiction sonore",
-      title: "Le Pseudodocumentaire de l'espace",
-      image: "assets/media/shows/pseudocumentaire.png",
-      text: "Archives déplacées, faux-semblants et dépression verte pour un laboratoire d'anticipation.",
-      href: "https://audioblog.arteradio.com/blog/194586/pseudocumentaire-de-l-espace",
-      actionLabelLines: ["Écouter", "le podcast"],
-    },
-    {
-      meta: "Émission",
-      title: "Console-toi",
-      image: "assets/media/shows/consoletoi.png",
-      text: "ASMR Atari, stress 8-bit et poésie du samedi matin à micro ouvert.",
-      href: "https://audioblog.arteradio.com/blog/263269/le-chat-noir",
-      actionLabelLines: ["Écouter", "le podcast"],
-    },
-    {
-      meta: "Captations",
-      title: "Home Taping is Killing Music",
-      image: "assets/media/shows/hometaping.png",
-      text: "Bootlegs, bruit du lieu et mémoire brute de la scène captée sur le vif.",
-      href: "https://hometapingiskillingmusic.bandcamp.com/",
-      actionLabel: "Ouvrir l'archive sonore",
-    },
-    {
-      meta: "Projet musical",
-      title: "When Day Chokes The Night",
-      image: "assets/media/shows/wdctn.png",
-      text: "Textures ambient, improvisations et paysages liquides toujours actifs dans l'univers de la radio.",
-      href: "https://whendaychokesthenight.wordpress.com/",
-      actionLabel: "Visiter le site",
-    },
-  ];
-
-  var ABOUT_CHIPS = [
-    "Autogérée",
-    "Créations sonores",
-    "Écoute lente",
-    "Scène locale",
-    "Diffusion continue",
-    "Auto-hébergée",
-  ];
-
-  var CONTRIBUTION_MODES = [
-    {
-      id: "son",
-      label: "Proposer un son",
-      kicker: "Contribution",
-      title: "Proposer un son ou une émission",
-      text: "Un morceau, une émission, un module ou un podcast diffusable. On cherche des propositions claires, diffusables, et accompagnées des bonnes infos.",
-      points: [
-        "Titre ou nom du projet",
-        "Lien d'écoute ou fichier",
-        "Infos de droits et nom ou pseudo",
-      ],
-      subject: "Le Chat Noir - Proposition sonore",
-      body:
-        "Bonjour,\n\nJe propose ce contenu pour diffusion :\n\n- Titre / Projet :\n- Lien d'écoute / téléchargement :\n- Droits / autorisation :\n- Nom / pseudo :\n\nMerci.",
-      cta: "Nous écrire",
-    },
-    {
-      id: "retrait",
-      label: "Demander un retrait",
-      kicker: "Priorité",
-      title: "Demander un retrait",
-      text: "Les demandes de retrait sont traitées en priorité, sans friction inutile. Il suffit de nous donner les éléments permettant d'identifier le contenu concerné.",
-      points: [
-        "Titre ou contenu concerné",
-        "Motif de la demande",
-        "Lien ou plage horaire si possible",
-      ],
-      subject: "Le Chat Noir - Demande de retrait",
-      body:
-        "Bonjour,\n\nJe demande le retrait du contenu suivant :\n\n- Titre / Artiste :\n- Motif :\n- Lien / horaire de diffusion :\n- Contact :\n\nMerci.",
-      cta: "Nous écrire",
-    },
-    {
-      id: "contact",
-      label: "Autre message",
-      kicker: "Contact",
-      title: "Nous écrire",
-      text: "Pour une question, une correction, un signalement, une idée d'émission ou toute autre prise de contact liée à la radio.",
-      points: [
-        "Objet du message",
-        "Contexte en quelques lignes",
-        "Retour attendu",
-      ],
-      subject: "Le Chat Noir - Contact",
-      body: "Bonjour,\n\nObjet :\n\nMessage :\n\nNom / pseudo :\n\nMerci.",
-      cta: "Nous écrire",
-    },
-  ];
-
-  var SCHEDULE_TIMELINE_DAYS = [
-    {
-      id: "mon",
-      shortName: "Lun",
-      name: "Lundi",
-      summary: "Fragments matinaux, rock de l'aprème et retour de L'Autre Nuit.",
-      slots: [
-        { time: "00h00", title: "La Grande Nuit", desc: "Paysages sonores étendus, pièces immersives." },
-        { time: "07h00", title: "Le Migou", desc: "Réveil café." },
-        { time: "Puis", title: "Matinée : Fragments", desc: "Courtes dérives musicales de 10 à 15 minutes.", meta: true },
-        { time: "12h00", title: "La table du chat", desc: "Chanson, electro douce, ambient léger." },
-        { time: "14h00", title: "L'instinct mode", desc: "Chronique du vestiaire by Lady Em." },
-        { time: "Puis", title: "Rock de l'aprème", desc: "On réchauffe le rock'n'roll.", meta: true, highlight: true },
-        { time: "23h40", title: "L'Autre Nuit", desc: "Lectures sans centre et machines hésitantes." },
-      ],
-    },
-    {
-      id: "tue",
-      shortName: "Mar",
-      name: "Mardi",
-      summary: "Trajectoires longues, noise de l'aprème et pseudodocumentaire tardif.",
-      slots: [
-        { time: "00h00", title: "La Grande Nuit", desc: "Paysages sonores étendus, pièces immersives." },
-        { time: "07h00", title: "Le Migou", desc: "Réveil café." },
-        { time: "Puis", title: "Matinée : Trajectoires", desc: "Dérives musicales de 15 à 30 minutes.", meta: true },
-        { time: "12h00", title: "La table du chat", desc: "Chanson, electro douce, ambient léger." },
-        { time: "14h00", title: "L'instinct mode", desc: "Chronique du vestiaire by Lady Em." },
-        { time: "Puis", title: "Noise de l'aprème", desc: "Noise-rock, post-punk et autres secousses.", meta: true, highlight: true },
-        { time: "23h40", title: "Le Pseudodocumentaire de l'espace", desc: "Fiction sonore et dépression verte." },
-      ],
-    },
-    {
-      id: "wed",
-      shortName: "Mer",
-      name: "Mercredi",
-      summary: "Immersion longue et chats sauvages jusqu'au retour de la nuit.",
-      slots: [
-        { time: "00h00", title: "La Grande Nuit", desc: "Paysages sonores étendus, pièces immersives." },
-        { time: "07h00", title: "Le Migou", desc: "Réveil café." },
-        { time: "Puis", title: "Matinée : Immersion", desc: "Longues dérives musicales de 30 à 60 minutes.", meta: true },
-        { time: "12h00", title: "La table du chat", desc: "Chanson, electro douce, ambient léger." },
-        { time: "14h00", title: "L'instinct mode", desc: "Chronique du vestiaire by Lady Em." },
-        { time: "Puis", title: "Les chats sauvages", desc: "Le jour des enfants, c'est musique aléatoire.", meta: true, highlight: true },
-        { time: "23h40", title: "L'Autre Nuit", desc: "Lectures sans centre et machines hésitantes." },
-      ],
-    },
-    {
-      id: "thu",
-      shortName: "Jeu",
-      name: "Jeudi",
-      summary: "Bandes originales, focus Radio Gadin et fiction tardive.",
-      slots: [
-        { time: "00h00", title: "La Grande Nuit", desc: "Paysages sonores étendus, pièces immersives." },
-        { time: "07h00", title: "Le Migou", desc: "Réveil café." },
-        { time: "Puis", title: "Matinée : Immersion", desc: "Longues dérives musicales de 30 à 60 minutes.", meta: true },
-        { time: "12h00", title: "La table du chat", desc: "Chanson, electro douce, ambient léger." },
-        { time: "14h00", title: "L'instinct mode", desc: "Chronique du vestiaire by Lady Em." },
-        { time: "Puis", title: "OST de l'aprème", desc: "Bandes originales, musiques de films, jeux, images mentales.", meta: true, highlight: true },
-        { time: "18h00", title: "Radio Gadin", desc: "Focus intégrale Flash Dog Duke Silver." },
-        { time: "23h40", title: "Le Pseudodocumentaire de l'espace", desc: "Fiction sonore et dépression verte." },
-      ],
-    },
-    {
-      id: "fri",
-      shortName: "Ven",
-      name: "Vendredi",
-      summary: "Fragments, indie de l'aprème et Drive with a Dead Radio.",
-      slots: [
-        { time: "00h00", title: "La Grande Nuit", desc: "Paysages sonores étendus, pièces immersives." },
-        { time: "07h00", title: "Le Migou", desc: "Réveil café." },
-        { time: "Puis", title: "Matinée : Fragments", desc: "Courtes dérives musicales de 10 à 15 minutes.", meta: true },
-        { time: "12h00", title: "La table du chat", desc: "Chanson, electro douce, ambient léger." },
-        { time: "14h00", title: "L'instinct mode", desc: "Chronique du vestiaire by Lady Em." },
-        { time: "Puis", title: "Indie de l'aprème", desc: "Indie rock, shoegaze, dream pop et dérivés.", meta: true, highlight: true },
-        { time: "18h00", title: "Drive with a Dead Radio", desc: "Focus intégrale Drive With A Dead Girl." },
-        { time: "23h40", title: "L'Autre Nuit", desc: "Lectures sans centre et machines hésitantes." },
-      ],
-    },
-    {
-      id: "sat",
-      shortName: "Sam",
-      name: "Samedi",
-      summary: "Courée ouverte, Console-toi et focus When Day Chokes a Radio.",
-      slots: [
-        { time: "00h00", title: "La Grande Nuit", desc: "Paysages sonores étendus, pièces immersives." },
-        { time: "07h00", title: "Les chats dans la courée", desc: "Tout ce qui ne rentre pas ailleurs." },
-        { time: "10h00", title: "Console-toi", desc: "ASMR de l'Atari et poésie 8-bit.", highlight: true },
-        { time: "12h00", title: "La table du chat", desc: "Chanson, electro douce, ambient léger." },
-        { time: "14h00", title: "L'instinct mode", desc: "Chronique du vestiaire by Lady Em." },
-        { time: "Puis", title: "Les chats dans la courée", desc: "Tout ce qui ne rentre pas ailleurs.", meta: true },
-        { time: "18h00", title: "When Day Chokes a Radio", desc: "Focus intégrale When Day Chokes The Night." },
-        { time: "23h40", title: "Le Pseudodocumentaire de l'espace", desc: "Fiction sonore, 20 minutes." },
-      ],
-    },
-    {
-      id: "sun",
-      shortName: "Dim",
-      name: "Dimanche",
-      summary: "Messe Noire, siestes de l'aprème et retour à L'Autre Nuit.",
-      slots: [
-        { time: "00h00", title: "La Grande Nuit", desc: "Paysages sonores étendus, pièces immersives." },
-        { time: "07h00", title: "Messe Noire", desc: "Rituel. Musiques dures, sombres, expérimentales, radicales.", highlight: true },
-        { time: "12h00", title: "La table du chat", desc: "Chanson, electro douce, ambient léger." },
-        { time: "14h00", title: "L'instinct mode", desc: "Chronique du vestiaire by Lady Em." },
-        { time: "14h05", title: "Les siestes de l'Aprème", desc: "Dream pop, lo-fi hip-hop, formes calmes." },
-        { time: "23h40", title: "L'Autre Nuit", desc: "Lectures sans centre et machines hésitantes." },
-      ],
-    },
-  ];
-
-  var SCHEDULE_DAY_ICONS = {
-    mon: "fa-solid fa-moon",
-    tue: "fa-solid fa-rocket",
-    wed: "fa-solid fa-cat",
-    thu: "fa-solid fa-film",
-    fri: "fa-solid fa-car-side",
-    sat: "fa-solid fa-user-astronaut",
-    sun: "fa-solid fa-sun",
-  };
-
-  var SLOT_DECOR_BY_DAY = {
-    thu: {
-      "Radio Gadin": { badge: "Focus", kind: "focus-amber" },
-    },
-    fri: {
-      "Drive with a Dead Radio": { badge: "Focus", kind: "focus-danger" },
-    },
-    sat: {
-      "When Day Chokes a Radio": { badge: "Focus", kind: "focus-cyan" },
-    },
-    sun: {
-      "Messe Noire": {
-        badge: "Rituel",
-        badgeIcon: "fa-solid fa-church",
-        kind: "rituel",
-      },
-    },
-  };
-
-  function decorateScheduleDays(days) {
-    return (days || []).map(function (day) {
-      var dayDecor = SLOT_DECOR_BY_DAY[day.id] || {};
-      return Object.assign({}, day, {
-        icon: day.icon || SCHEDULE_DAY_ICONS[day.id] || "",
-        slots: (day.slots || []).map(function (slot) {
-          var extra = dayDecor[slot.title] || {};
-          if (slot.title === "La table du chat" && !extra.icon && !slot.icon) {
-            extra = Object.assign({ icon: "fa-solid fa-utensils" }, extra);
-          }
-          return Object.assign({}, slot, extra);
-        }),
-      });
-    });
-  }
-
-  SCHEDULE_TIMELINE_DAYS = decorateScheduleDays(SCHEDULE_TIMELINE_DAYS);
+  var CONTENT =
+    typeof window !== "undefined" && window.LCNContentData && typeof window.LCNContentData === "object"
+      ? window.LCNContentData
+      : {};
+  var SCHEDULE_TIMELINE_DAYS = Array.isArray(CONTENT.SCHEDULE_TIMELINE_DAYS)
+    ? CONTENT.SCHEDULE_TIMELINE_DAYS
+    : [];
 
   var state = {
     route: getCurrentPageId(),
@@ -345,17 +61,11 @@
     },
     historyRows: [],
     sortedHistoryRows: [],
-    historyStatus: "Chargement de l'historique…",
-    searchDay: getTodayYmd(),
-    searchTime: "",
-    historyMode: "latest",
-    selectedDayId: getCurrentDayId(),
     volume: loadSavedVolume(),
     isPlaying: false,
     connectionState: "idle",
     dockVolumeOpen: false,
     heroVolumeOpen: false,
-    contactMode: "son",
   };
 
   var refs = {
@@ -611,12 +321,6 @@
     };
   }
 
-  function getTodayYmd() {
-    var parts = getDisplayDateParts(new Date());
-    if (!parts) return "";
-    return parts.year + "-" + parts.month + "-" + parts.day;
-  }
-
   function getCurrentDayId() {
     try {
       var weekday = new Intl.DateTimeFormat("en-US", {
@@ -683,59 +387,10 @@
     }
   }
 
-  function getDisplayMinutes(isoDate) {
-    var parts = getDisplayDateParts(isoDate);
-    if (!parts) return null;
-    return Number(parts.hour) * 60 + Number(parts.minute);
-  }
-
-  function normalizeUtcOffset(rawLabel) {
-    var match = String(rawLabel || "").match(/(?:GMT|UTC)([+-])(\d{1,2})(?::?(\d{2}))?/i);
-    if (!match) return "";
-    return (
-      "UTC" +
-      match[1] +
-      String(match[2] || "0").padStart(2, "0") +
-      ":" +
-      String(match[3] || "00").padStart(2, "0")
-    );
-  }
-
-  function getDisplayZoneLabel() {
-    try {
-      var parts = new Intl.DateTimeFormat("en-US", {
-        timeZone: DISPLAY_TIME_ZONE,
-        timeZoneName: "shortOffset",
-        hour: "2-digit",
-        minute: "2-digit",
-      }).formatToParts(new Date());
-      var zonePart = parts.find(function (part) {
-        return part.type === "timeZoneName";
-      });
-      var offset = normalizeUtcOffset(zonePart && zonePart.value);
-      if (offset) return offset + " · " + DISPLAY_TIME_ZONE;
-    } catch (error) {
-      return "UTC+01:00 / UTC+02:00 · " + DISPLAY_TIME_ZONE;
-    }
-    return "UTC+01:00 / UTC+02:00 · " + DISPLAY_TIME_ZONE;
-  }
-
-  function formatLocalDate(isoDate) {
-    var parts = getDisplayDateParts(isoDate);
-    if (!parts) return "--";
-    return parts.day + "/" + parts.month + "/" + parts.year;
-  }
-
   function formatLocalTime(isoDate) {
     var parts = getDisplayDateParts(isoDate);
     if (!parts) return "--:--";
     return parts.hour + ":" + parts.minute;
-  }
-
-  function isSameLocalDay(isoDate, ymd) {
-    var parts = getDisplayDateParts(isoDate);
-    if (!parts) return false;
-    return parts.year + "-" + parts.month + "-" + parts.day === ymd;
   }
 
   function getTrackMeta(row) {
@@ -787,40 +442,6 @@
     if (!button || button.dataset.audioToggleBound === "true") return;
     button.dataset.audioToggleBound = "true";
     button.addEventListener("click", handleAudioToggleInteraction);
-  }
-
-  function buildMailtoHref(action) {
-    return (
-      "mailto:" +
-      CONTACT_EMAIL +
-      "?subject=" +
-      encodeURIComponent(action.subject) +
-      "&body=" +
-      encodeURIComponent(action.body)
-    );
-  }
-
-  function getContributionMode(modeId) {
-    return (
-      CONTRIBUTION_MODES.find(function (mode) {
-        return mode.id === modeId;
-      }) || CONTRIBUTION_MODES[0]
-    );
-  }
-
-  function renderShowActionLabel(show) {
-    if (show && Array.isArray(show.actionLabelLines) && show.actionLabelLines.length) {
-      return (
-        '<span class="show-action-label">' +
-        show.actionLabelLines
-          .map(function (line) {
-            return "<span>" + escapeHtml(line) + "</span>";
-          })
-          .join("") +
-        "</span>"
-      );
-    }
-    return "<span>" + escapeHtml(show && show.actionLabel ? show.actionLabel : "") + "</span>";
   }
 
   function renderHomePage() {
@@ -915,280 +536,10 @@
     );
   }
 
-  function getSortedNewsItems() {
-    return NEWS_ITEMS.slice().sort(function (a, b) {
-      var aKey = String(a && a.sortKey ? a.sortKey : "");
-      var bKey = String(b && b.sortKey ? b.sortKey : "");
-      return bKey.localeCompare(aKey);
-    });
-  }
-
-  function renderNewsPage() {
-    var items = getSortedNewsItems();
-
-    return (
-      '<section class="page">' +
-      '<header class="page-header surface-panel">' +
-      '<p class="eyebrow">Actualités</p>' +
-      '<h1 class="page-title">Chronologie de la station</h1>' +
-      '<p class="page-subtitle">Naissance du flux, mises en route, bascules techniques, voix nouvelles, lives et accidents : les étapes qui façonnent encore Le Chat Noir.</p>' +
-      "</header>" +
-      '<section class="news-feed">' +
-      (items.length
-        ? items.map(function (item) {
-            return (
-              '<article class="news-card">' +
-              '<p class="news-date">' +
-              escapeHtml(item.dateLabel || item.date || "") +
-              "</p>" +
-              '<div class="news-copy">' +
-              '<h2 class="news-title">' +
-              escapeHtml(item.title) +
-              "</h2>" +
-              '<p class="news-lead">' +
-              escapeHtml(item.lead) +
-              "</p>" +
-              '<p class="news-body">' +
-              escapeHtml(item.body) +
-              "</p>" +
-              "</div>" +
-              "</article>"
-            );
-          }).join("")
-        : '<article class="news-card"><div class="news-copy"><h2 class="news-title">Aucune actualité pour le moment</h2><p class="news-body">Les nouvelles étapes de la station apparaîtront ici.</p></div></article>') +
-      "</section>" +
-      "</section>"
-    );
-  }
-
-  function renderSchedulePage() {
-    return (
-      '<section class="page">' +
-      '<header class="page-header surface-panel">' +
-      '<p class="eyebrow">Grille des programmes</p>' +
-      '<h1 class="page-title">La semaine en clair</h1>' +
-      '<p class="page-subtitle">Les nuits, les matinées, les rendez-vous fixes, les focus et les dérives qui donnent son rythme à la radio.</p>' +
-      "</header>" +
-      '<section class="surface-panel page">' +
-      '<div id="scheduleSwitcher" class="day-switcher"></div>' +
-      '<div id="schedulePanel"></div>' +
-      "</section>" +
-      "</section>"
-    );
-  }
-
-  function renderProducersPage() {
-    return (
-      '<section class="page">' +
-      '<header class="page-header surface-panel">' +
-      '<p class="eyebrow">Voix et formats</p>' +
-      '<h1 class="page-title">Les voix qui fabriquent la radio</h1>' +
-      '<p class="page-subtitle">Production, chroniques, émissions, captations et projets qui donnent une forme au territoire radiophonique du Chat Noir.</p>' +
-      "</header>" +
-      '<section class="page">' +
-      '<div class="section-heading">' +
-      '<p class="section-kicker">Voix</p>' +
-      '<h2 class="section-title">Présences à l\'antenne</h2>' +
-      "</div>" +
-      '<div class="producers-grid">' +
-      PRODUCERS.map(function (producer) {
-        return (
-          '<article class="producer-card">' +
-          '<div class="producer-photo-wrap">' +
-          '<img class="producer-photo" src="' +
-          escapeHtml(producer.image) +
-          '" alt="' +
-          escapeHtml("Portrait de " + producer.name) +
-          '" loading="lazy" />' +
-          "</div>" +
-          "<div>" +
-          '<p class="producer-role">' +
-          escapeHtml(producer.role) +
-          "</p>" +
-          '<h3 class="producer-name">' +
-          escapeHtml(producer.name) +
-          "</h3>" +
-          '<p class="producer-bio">' +
-          escapeHtml(producer.bio) +
-          "</p>" +
-          "</div>" +
-          "</article>"
-        );
-      }).join("") +
-      "</div>" +
-      "</section>" +
-      '<section class="page">' +
-      '<div class="section-heading">' +
-      '<p class="section-kicker">Formats</p>' +
-      '<h2 class="section-title">Univers déjà présents dans la radio</h2>' +
-      "</div>" +
-      '<div class="shows-grid">' +
-      SHOWS.map(function (show) {
-        return (
-          '<article class="show-card">' +
-          '<img class="show-cover" src="' +
-          escapeHtml(show.image) +
-          '" alt="' +
-          escapeHtml("Visuel " + show.title) +
-          '" loading="lazy" />' +
-          '<div class="show-body">' +
-          '<p class="show-meta">' +
-          escapeHtml(show.meta) +
-          "</p>" +
-          '<h3 class="show-title">' +
-          escapeHtml(show.title) +
-          "</h3>" +
-          '<p class="card-text">' +
-          escapeHtml(show.text) +
-          "</p>" +
-          '<a class="ghost-button show-action" href="' +
-          escapeHtml(show.href) +
-          '" target="_blank" rel="noopener">' +
-          icon("external") +
-          renderShowActionLabel(show) +
-          "</a>" +
-          "</div>" +
-          "</article>"
-        );
-      }).join("") +
-      "</div>" +
-      "</section>" +
-      "</section>"
-    );
-  }
-
-  function renderContactPage() {
-    var activeMode = getContributionMode(state.contactMode);
-    return (
-      '<section class="page">' +
-      '<section class="surface-panel about-shell">' +
-      '<div class="about-layout">' +
-      '<div class="about-media" aria-hidden="true">' +
-      '<div class="about-totem">' +
-      '<div class="about-logo-frame">' +
-      '<img class="about-logo" src="assets/media/brand/logo.png" alt="" loading="lazy" />' +
-      "</div>" +
-      "</div>" +
-      "</div>" +
-      '<div class="about-content">' +
-      '<div class="section-heading">' +
-      '<p class="section-kicker">À propos</p>' +
-      '<h1 class="page-title about-title">Un laboratoire radiophonique indépendant</h1>' +
-      "</div>" +
-      '<p class="about-lead about-line">' +
-      '<i class="fa-solid fa-tower-broadcast about-fa" aria-hidden="true"></i>' +
-      '<span>Le Chat Noir est une webradio artisanale, indépendante et autogérée, dédiée aux créations sonores et musicales.</span>' +
-      "</p>" +
-      '<div class="about-copy">' +
-      '<p class="about-paragraph about-line">' +
-      '<i class="fa-solid fa-wave-square about-fa" aria-hidden="true"></i>' +
-      '<span>Elle diffuse en continu des créations libres : paysages sonores, field recordings, expérimentations radiophoniques, émissions et musiques de tous horizons, sans cloisonnement rigide.</span>' +
-      "</p>" +
-      '<p class="about-paragraph about-line">' +
-      '<i class="fa-solid fa-sliders about-fa" aria-hidden="true"></i>' +
-      '<span>La radio assume une écoute lente entre fiction et réel, et respecte les dynamiques des œuvres sans compression globale imposée à l\'antenne.</span>' +
-      "</p>" +
-      '<p class="about-paragraph about-line">' +
-      '<i class="fa-solid fa-house-signal about-fa" aria-hidden="true"></i>' +
-      '<span>Tout est fait maison, hébergé, programmé et maintenu localement. Une radio de proximité cosmique, née dans une courée, tournée vers l\'espace.</span>' +
-      "</p>" +
-      "</div>" +
-      '<div class="about-chip-row">' +
-      ABOUT_CHIPS.map(function (chip) {
-        return '<span class="about-chip">' + escapeHtml(chip) + "</span>";
-      }).join("") +
-      "</div>" +
-      "</div>" +
-      "</div>" +
-      "</section>" +
-      '<section class="surface-panel contrib-shell">' +
-      '<div class="section-heading">' +
-      '<p class="section-kicker">Contribution</p>' +
-      '<h2 class="section-title">Écrire à la radio</h2>' +
-      '<p class="section-intro">Une idée, un son, une correction ou une demande de retrait ? Écris-nous, on te répond rapidement.</p>' +
-      "</div>" +
-      '<div id="contribSwitcher" class="contrib-switcher" role="tablist" aria-label="Choisir un mode de contribution">' +
-      CONTRIBUTION_MODES.map(function (mode) {
-        var isActive = mode.id === activeMode.id;
-        return (
-          '<button class="contrib-step' +
-          (isActive ? " is-active" : "") +
-          '" type="button" role="tab" aria-selected="' +
-          (isActive ? "true" : "false") +
-          '" data-contrib-mode="' +
-          escapeHtml(mode.id) +
-          '">' +
-          escapeHtml(mode.label) +
-          "</button>"
-        );
-      }).join("") +
-      "</div>" +
-      '<article id="contribPanel" class="contrib-panel"></article>' +
-      "</section>" +
-      '<p class="about-signature">· Le Chat Noir avec Dr. John · mars 2026</p>' +
-      "</section>"
-    );
-  }
-
-  function renderHistoryPage() {
-    return (
-      '<section class="page">' +
-      '<header class="page-header surface-panel">' +
-      '<p class="eyebrow">Les archives de la radio</p>' +
-      '<h1 class="page-title">Historique de diffusion</h1>' +
-      '<p class="page-subtitle">Un titre t\'a échappé pendant l\'écoute ? Les dernières diffusions, en lecture chronologique, avec actualisation automatique et recherche par date et heure.</p>' +
-      '<div class="page-meta-row">' +
-      '<span class="meta-pill">' +
-      '<i class="fa-solid fa-rotate" aria-hidden="true"></i>' +
-      "<span>Mise à jour toutes les 20 s</span></span>" +
-      '<span class="meta-pill">' +
-      '<i class="fa-solid fa-clock" aria-hidden="true"></i>' +
-      '<span id="historyTimezonePill">UTC · Europe/Paris</span></span>' +
-      "</div>" +
-      "</header>" +
-      '<section class="history-toolbar">' +
-      '<div class="history-toolbar-top">' +
-      '<p id="historyModeLabel" class="card-text">Chargement…</p>' +
-      "</div>" +
-      '<div class="history-form">' +
-      '<div class="field-group">' +
-      '<label for="historyDayInput">Choisir une date</label>' +
-      '<input id="historyDayInput" type="date" value="' +
-      escapeHtml(state.searchDay) +
-      '" />' +
-      "</div>" +
-      '<div class="field-group">' +
-      '<label for="historyTimeInput">Choisir une heure</label>' +
-      '<input id="historyTimeInput" type="time" value="' +
-      escapeHtml(state.searchTime) +
-      '" />' +
-      "</div>" +
-      '<div class="history-actions">' +
-      '<button id="historySearchButton" class="ghost-button history-search-button" type="button">' +
-      icon("schedule") +
-      "<span>Rechercher</span>" +
-      "</button>" +
-      "</div>" +
-      "</div>" +
-      "</section>" +
-      '<section class="surface-panel">' +
-      '<ul id="historyList" class="history-list"></ul>' +
-      "</section>" +
-      "</section>"
-    );
-  }
-
   function renderPage() {
     if (!refs.pageRoot) return;
-    document.body.classList.toggle("route-home", state.route === "home");
-    var html = "";
-    if (state.route === "actualites") html = renderNewsPage();
-    if (state.route === "grille") html = renderSchedulePage();
-    if (state.route === "voix") html = renderProducersPage();
-    if (state.route === "apropos") html = renderContactPage();
-    if (state.route === "historique") html = renderHistoryPage();
-    if (!html) html = renderHomePage();
-    refs.pageRoot.innerHTML = html;
+    document.body.classList.add("route-home");
+    refs.pageRoot.innerHTML = renderHomePage();
     fillIconSlots(refs.pageRoot);
     bindPageEvents();
     updateUi();
@@ -1205,20 +556,6 @@
       window.localStorage.setItem(HISTORY_CACHE_AT_KEY, String(Date.now()));
     } catch (error) {
       return;
-    }
-  }
-
-  function loadHistoryCache() {
-    try {
-      var cachedAt = Number(window.localStorage.getItem(HISTORY_CACHE_AT_KEY) || 0);
-      if (!cachedAt || Date.now() - cachedAt > HISTORY_CACHE_MAX_AGE_MS) return null;
-      var raw = window.localStorage.getItem(HISTORY_CACHE_KEY);
-      if (!raw) return null;
-      var rows = JSON.parse(raw);
-      if (!Array.isArray(rows) || !rows.length) return null;
-      return rows;
-    } catch (error) {
-      return null;
     }
   }
 
@@ -1439,203 +776,6 @@
       .join("");
   }
 
-  function renderScheduleView() {
-    var switcher = document.getElementById("scheduleSwitcher");
-    var panel = document.getElementById("schedulePanel");
-    if (!switcher || !panel) return;
-
-    switcher.innerHTML = SCHEDULE_TIMELINE_DAYS.map(function (day) {
-      var active = day.id === state.selectedDayId ? " is-active" : "";
-      return (
-        '<button class="day-chip' +
-        active +
-        '" type="button" data-day="' +
-        day.id +
-        '">' +
-        escapeHtml(day.shortName) +
-        "</button>"
-      );
-    }).join("");
-
-    var dayData = getScheduleDayById(state.selectedDayId);
-    panel.innerHTML =
-      '<article class="schedule-card">' +
-      '<div class="schedule-day-head">' +
-      '<div class="schedule-day-copy">' +
-      '<div class="schedule-day-title-row">' +
-      '<span class="schedule-day-icon">' +
-      faIcon(dayData.icon, "schedule-day-fa") +
-      "</span>" +
-      "<h3>" +
-      escapeHtml(dayData.name) +
-      "</h3>" +
-      "</div>" +
-      "<p>" +
-      escapeHtml(dayData.summary) +
-      "</p>" +
-      "</div>" +
-      "</div>" +
-      '<div class="schedule-list">' +
-      dayData.slots
-        .map(function (slot) {
-          return (
-            '<article class="' +
-            getProgramItemClasses("schedule-item", slot) +
-            '">' +
-            '<div class="schedule-item-top">' +
-            '<span class="schedule-time' +
-            (slot.meta ? " is-meta" : "") +
-            '">' +
-            escapeHtml(slot.time) +
-            "</span>" +
-            buildProgramBadge(slot) +
-            "</div>" +
-            '<div class="schedule-name-row">' +
-            faIcon(slot.icon, "program-icon") +
-            '<strong class="schedule-name">' +
-            escapeHtml(slot.title) +
-            "</strong>" +
-            "</div>" +
-            '<span class="schedule-desc">' +
-            escapeHtml(slot.desc) +
-            "</span>" +
-            "</article>"
-          );
-        })
-        .join("") +
-      "</div>" +
-      "</article>";
-  }
-
-  function getHistoryDisplayRows() {
-    var rows = getHistoryRowsSorted();
-    if (state.historyMode !== "search") {
-      var latestDay = state.searchDay || getTodayYmd();
-      return {
-        rows: rows
-          .filter(function (row) {
-            return row.tsIso && isSameLocalDay(row.tsIso, latestDay);
-          })
-          .slice(0, 20),
-        label: "",
-      };
-    }
-
-    var filtered = rows.filter(function (row) {
-      return row.tsIso && isSameLocalDay(row.tsIso, state.searchDay);
-    });
-
-    if (state.searchTime) {
-      var tokens = state.searchTime.split(":");
-      var hour = Number(tokens[0] || 0);
-      var minute = Number(tokens[1] || 0);
-      var referenceMinutes = hour * 60 + minute;
-      filtered.sort(function (a, b) {
-        var aMinutes = getDisplayMinutes(a.tsIso);
-        var bMinutes = getDisplayMinutes(b.tsIso);
-        return Math.abs((aMinutes == null ? 0 : aMinutes) - referenceMinutes) - Math.abs((bMinutes == null ? 0 : bMinutes) - referenceMinutes);
-      });
-      return {
-        rows: filtered.slice(0, 20),
-        label: "Recherche ponctuelle : titres les plus proches de " + state.searchTime,
-      };
-    }
-
-    return {
-      rows: filtered.slice(0, 20),
-      label: "Recherche ponctuelle : " + state.searchDay,
-    };
-  }
-
-  function renderHistoryView() {
-    var root = document.getElementById("historyList");
-    if (!root) return;
-    var modeLabel = document.getElementById("historyModeLabel");
-    var statusText = document.getElementById("historyStatusText");
-    var timezonePill = document.getElementById("historyTimezonePill");
-    var dayInput = document.getElementById("historyDayInput");
-    var timeInput = document.getElementById("historyTimeInput");
-
-    if (state.historyMode !== "search") {
-      state.searchDay = getTodayYmd();
-    }
-    var display = getHistoryDisplayRows();
-    if (dayInput) dayInput.value = state.searchDay;
-    if (timeInput) timeInput.value = state.searchTime;
-    if (modeLabel) modeLabel.textContent = display.label;
-    if (statusText) statusText.textContent = state.historyStatus;
-    if (timezonePill) timezonePill.textContent = getDisplayZoneLabel();
-    if (!display.rows.length) {
-      root.innerHTML = '<li class="history-empty">Aucun titre trouvé pour cette sélection.</li>';
-      return;
-    }
-
-    root.innerHTML = display.rows
-      .map(function (row) {
-        var title = asString(row.title) || "(sans titre)";
-        var meta = getTrackMeta(row);
-        return (
-          '<li class="history-item">' +
-          '<div class="history-item-head">' +
-          '<span class="history-date history-stamp">' +
-          escapeHtml(formatLocalDate(row.tsIso)) +
-          "</span>" +
-          '<span class="history-time history-stamp">' +
-          escapeHtml(formatLocalTime(row.tsIso)) +
-          "</span>" +
-          "</div>" +
-          '<div class="history-item-copy">' +
-          '<strong class="history-title">' +
-          escapeHtml(title) +
-          "</strong>" +
-          '<span class="history-meta">' +
-          escapeHtml(meta || "Métadonnées partielles") +
-          "</span>" +
-          "</div>" +
-          "</li>"
-        );
-      })
-      .join("");
-  }
-
-  function renderContributionView() {
-    var switcher = document.getElementById("contribSwitcher");
-    var panel = document.getElementById("contribPanel");
-    var activeMode = getContributionMode(state.contactMode);
-    if (!switcher || !panel) return;
-
-    switcher.querySelectorAll("[data-contrib-mode]").forEach(function (button) {
-      var isActive = button.getAttribute("data-contrib-mode") === activeMode.id;
-      button.classList.toggle("is-active", isActive);
-      button.setAttribute("aria-selected", isActive ? "true" : "false");
-    });
-
-    panel.innerHTML =
-      '<p class="contrib-kicker">' +
-      escapeHtml(activeMode.kicker) +
-      "</p>" +
-      '<h3 class="contrib-title">' +
-      escapeHtml(activeMode.title) +
-      "</h3>" +
-      '<p class="contrib-text">' +
-      escapeHtml(activeMode.text) +
-      "</p>" +
-      '<ul class="contact-list contrib-list">' +
-      activeMode.points
-        .map(function (point) {
-          return "<li>" + escapeHtml(point) + "</li>";
-        })
-        .join("") +
-      "</ul>" +
-      '<a class="contrib-action" href="' +
-      escapeHtml(buildMailtoHref(activeMode)) +
-      '">' +
-      icon("contact") +
-      "<span>" +
-      escapeHtml(activeMode.cta) +
-      "</span></a>";
-  }
-
   function updateUi() {
     renderPlayButtons();
     fillIconSlots(document);
@@ -1646,9 +786,6 @@
     updateTrackText();
     renderHomeRecentList();
     renderTodayFocus();
-    renderScheduleView();
-    renderContributionView();
-    renderHistoryView();
   }
 
   function setVolume(nextValue) {
@@ -1788,22 +925,14 @@
       var response = await fetch(HISTORY_CSV_URL + "?t=" + Date.now(), { cache: "no-store" });
       if (!response.ok) throw new Error(String(response.status));
       var csvText = await response.text();
-      if (state.route === "historique") {
-        await new Promise(function (resolve) {
-          window.setTimeout(resolve, 0);
-        });
-      }
       setHistoryRows(parseCsvRows(csvText));
       saveHistoryCache(state.historyRows);
-      state.historyStatus = "Source : history/nowplaying.csv • mise à jour active";
       renderHomeRecentList();
-      renderHistoryView();
       if (!state.currentTrack.title || /chargement/i.test(state.currentTrack.title)) {
         applyCurrentTrack(buildMetaFromCsvRows(state.historyRows));
       }
     } catch (error) {
-      state.historyStatus = "Impossible de charger l'historique pour le moment";
-      renderHistoryView();
+      return;
     }
   }
 
@@ -1958,61 +1087,6 @@
         setVolume(Number(heroVolumeRange.value) / 100);
       });
     }
-
-    var scheduleSwitcher = document.getElementById("scheduleSwitcher");
-    if (scheduleSwitcher) {
-      scheduleSwitcher.addEventListener("click", function (event) {
-        var trigger = event.target.closest(".day-chip[data-day]");
-        if (!trigger) return;
-        state.selectedDayId = trigger.getAttribute("data-day");
-        renderScheduleView();
-      });
-    }
-
-    var contribSwitcher = document.getElementById("contribSwitcher");
-    if (contribSwitcher) {
-      contribSwitcher.addEventListener("click", function (event) {
-        var trigger = event.target.closest(".contrib-step[data-contrib-mode]");
-        if (!trigger) return;
-        state.contactMode = trigger.getAttribute("data-contrib-mode") || "son";
-        renderContributionView();
-      });
-    }
-
-    var historySearchButton = document.getElementById("historySearchButton");
-    var historyDayInput = document.getElementById("historyDayInput");
-    var historyTimeInput = document.getElementById("historyTimeInput");
-
-    if (historySearchButton && historyDayInput && historyTimeInput) {
-      historySearchButton.addEventListener("click", function () {
-        state.searchDay = historyDayInput.value || getTodayYmd();
-        state.searchTime = historyTimeInput.value || "";
-        state.historyMode =
-          state.searchTime || state.searchDay !== getTodayYmd() ? "search" : "latest";
-        renderHistoryView();
-      });
-    }
-
-    if (historyDayInput) {
-      historyDayInput.addEventListener("change", function () {
-        state.searchDay = historyDayInput.value || getTodayYmd();
-        if (!state.searchTime && state.searchDay === getTodayYmd()) {
-          state.historyMode = "latest";
-        } else {
-          state.historyMode = "search";
-        }
-        renderHistoryView();
-      });
-    }
-
-    if (historyTimeInput) {
-      historyTimeInput.addEventListener("change", function () {
-        state.searchTime = historyTimeInput.value || "";
-        state.historyMode =
-          state.searchTime || state.searchDay !== getTodayYmd() ? "search" : "latest";
-        renderHistoryView();
-      });
-    }
   }
 
   function bindShellEvents() {
@@ -2105,29 +1179,12 @@
     bindShellEvents();
     renderPage();
     updateUi();
-    if (state.route === "home") {
-      bindAudioEvents();
-      setVolume(state.volume);
-      refreshHistory();
-      refreshNowPlaying();
-      window.setInterval(refreshNowPlaying, 12000);
-      window.setInterval(refreshHistory, 20000);
-      return;
-    }
-    if (state.route === "historique") {
-      var cachedRows = loadHistoryCache();
-      if (cachedRows && cachedRows.length) {
-        setHistoryRows(cachedRows);
-        state.historyStatus = "Chargement des dernières diffusions…";
-        renderHistoryView();
-      }
-      window.requestAnimationFrame(function () {
-        window.setTimeout(function () {
-          refreshHistory();
-        }, 120);
-      });
-      window.setInterval(refreshHistory, 20000);
-    }
+    bindAudioEvents();
+    setVolume(state.volume);
+    refreshHistory();
+    refreshNowPlaying();
+    window.setInterval(refreshNowPlaying, 12000);
+    window.setInterval(refreshHistory, 20000);
   }
 
   initialize();

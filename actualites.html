@@ -40,7 +40,32 @@
       </a>
     </header>
 
-    <main id="pageRoot" class="page-root" aria-live="polite"></main>
+    <main class="page-root" aria-live="polite">
+      <section class="page">
+        <header class="page-header surface-panel">
+          <p class="eyebrow">Actualités</p>
+          <h1 class="page-title">Chronologie de la station</h1>
+          <p class="page-subtitle">Naissance du flux, mises en route, bascules techniques, voix nouvelles, lives et accidents : les étapes qui façonnent encore Le Chat Noir.</p>
+        </header>
+
+        <section class="surface-panel page">
+          <div class="section-heading">
+            <p class="section-kicker">Archives</p>
+            <h2 class="section-title">Par année</h2>
+            <p id="newsYearSummary" class="section-intro">Chargement des actualités…</p>
+          </div>
+          <div id="newsYearSwitcher" class="day-switcher news-year-switcher" role="tablist" aria-label="Filtrer les actualités par année"></div>
+          <section id="newsFeed" class="news-feed" aria-live="polite">
+            <article class="news-card">
+              <div class="news-copy">
+                <h2 class="news-title">Chargement des actualités…</h2>
+              </div>
+            </article>
+          </section>
+          <button id="newsMoreButton" class="ghost-button" type="button" hidden>Afficher plus</button>
+        </section>
+      </section>
+    </main>
   </div>
 
   <nav class="bottom-nav" aria-label="Navigation principale">
@@ -62,7 +87,8 @@
     </a>
   </nav>
 
+  <script src="assets/js/page-common.js"></script>
   <script src="assets/js/news-data.js"></script>
-  <script src="assets/js/site.js"></script>
+  <script src="assets/js/news-page.js"></script>
 </body>
 </html>
