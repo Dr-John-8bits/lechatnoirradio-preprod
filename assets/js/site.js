@@ -829,13 +829,13 @@
       '<div class="surface-panel hero-main">' +
       '<div class="hero-stage">' +
       '<div class="orbital-player">' +
+      '<div id="nativeAudioSlot" class="native-audio-slot"></div>' +
       '<span class="orbital-rim"></span>' +
       '<span class="orbital-rim-alt"></span>' +
       '<span class="orbital-rim-soft"></span>' +
       '<div class="orbital-core"></div>' +
       '<button class="hero-play" type="button" aria-label="Lancer ou mettre en pause le direct" data-audio-toggle data-button-kind="hero"></button>' +
       "</div>" +
-      '<div id="nativeAudioSlot" class="native-audio-slot" aria-hidden="true"></div>' +
       '<div class="hero-ticker-row">' +
       '<div class="hero-ticker-wrap">' +
       '<div id="heroTicker" class="marquee hero-marquee" aria-live="polite">' +
@@ -2041,6 +2041,7 @@
 
   function bindAudioEvents() {
     if (!refs.audio) return;
+    refs.audio.controls = true;
     refs.audio.preload = "none";
     refs.audio.volume = state.volume;
 

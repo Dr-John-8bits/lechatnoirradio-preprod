@@ -96,14 +96,14 @@ input[type="range"] {
   padding: 0;
   border: 0;
   opacity: 0.015;
-  pointer-events: none;
 }
 
 .native-audio-slot {
-  position: relative;
-  width: min(100%, 24rem);
-  height: 3rem;
-  margin-top: -0.4rem;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: grid;
+  place-items: center;
   overflow: hidden;
   border-radius: 999px;
 }
@@ -475,6 +475,7 @@ input[type="range"] {
 .orbital-core {
   position: absolute;
   inset: 28.5%;
+  z-index: 1;
   border-radius: 999px;
   overflow: hidden;
   background:
