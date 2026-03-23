@@ -7,7 +7,6 @@
   var CONTACT_EMAIL = "radio@lechatnoirradio.fr";
   var VOLUME_STORAGE_KEY = "lcn-player-volume";
   var DISPLAY_TIME_ZONE = "Europe/Paris";
-  var USER_GESTURE_WINDOW_MS = 1600;
 
   var ICONS = {
     play:
@@ -353,6 +352,7 @@
     reconnectTimer: null,
     stallTimer: null,
     suppressPauseIntent: false,
+    manualPausePending: false,
     usingCacheBustSource: false,
     dockVolumeOpen: false,
     heroVolumeOpen: false,
@@ -1735,6 +1735,7 @@
     updateUi();
     clearReconnectTimer();
     clearStallTimer();
+    state.manualPausePending = false;
 
     try {
       state.suppressPauseIntent = true;
@@ -1778,11 +1779,9 @@
     updateUi();
     clearReconnectTimer();
     clearStallTimer();
+    state.manualPausePending = false;
 
     try {
-      if (!refs.audio.src) {
-        refs.audio.src = buildStreamUrl(false);
-      }
       var playPromise = refs.audio.play();
       if (playPromise && typeof playPromise.then === "function") {
         await playPromise;
@@ -1807,6 +1806,7 @@
 
   function pausePlayback() {
     markUserGesture();
+    state.manualPausePending = true;
     state.userWantsPlay = false;
     state.connectionState = "idle";
     clearReconnectTimer();
@@ -2141,6 +2141,7 @@
     refs.audio.addEventListener("play", function () {
       state.isPlaying = true;
       state.userWantsPlay = true;
+      state.manualPausePending = false;
       state.connectionState = "playing";
       updateUi();
     });
@@ -2151,16 +2152,16 @@
         updateUi();
         return;
       }
-      if (refs.audio.ended) {
-        updateUi();
-        return;
-      }
-      var likelyUserPause = Date.now() - state.lastUserGestureAt <= USER_GESTURE_WINDOW_MS;
-      if (likelyUserPause) {
+      if (state.manualPausePending) {
+        state.manualPausePending = false;
         state.userWantsPlay = false;
         state.connectionState = "idle";
         clearReconnectTimer();
         clearStallTimer();
+        updateUi();
+        return;
+      }
+      if (refs.audio.ended) {
         updateUi();
         return;
       }
