@@ -39,6 +39,16 @@
     );
   }
 
+  function buildCurrentBadge(isCurrent) {
+    if (!isCurrent) return "";
+    return (
+      '<span class="current-pill" aria-label="En ce moment">' +
+      '<span class="current-pill-dot" aria-hidden="true"></span>' +
+      "<span>En ce moment</span>" +
+      "</span>"
+    );
+  }
+
   function getProgramItemClasses(baseClass, slot) {
     var classes = [baseClass];
     if (slot && slot.meta) classes.push("is-meta");
@@ -64,6 +74,10 @@
       .join("");
 
     var dayData = getDayById(state.selectedDayId);
+    var isToday = dayData.id === common.getCurrentDayId();
+    var currentSlot = isToday && typeof common.findCurrentScheduleSlot === "function"
+      ? common.findCurrentScheduleSlot(dayData)
+      : null;
     refs.panel.innerHTML =
       '<article class="schedule-card">' +
       '<div class="schedule-day-head">' +
@@ -79,14 +93,20 @@
       "<p>" +
       common.escapeHtml(dayData.summary) +
       "</p>" +
+      '<p class="schedule-day-note">Grille fluide, donnée à titre indicatif. Un direct, un décalage ou une dérive peuvent déplacer l\'antenne.</p>' +
+      "</div>" +
+      '<div class="schedule-day-side">' +
+      buildCurrentBadge(Boolean(currentSlot)) +
       "</div>" +
       "</div>" +
       '<div class="schedule-list">' +
       dayData.slots
         .map(function (slot) {
+          var isCurrent = currentSlot === slot;
           return (
             '<article class="' +
             getProgramItemClasses("schedule-item", slot) +
+            (isCurrent ? " is-current-slot" : "") +
             '">' +
             '<div class="schedule-item-top">' +
             '<span class="schedule-time' +
@@ -94,7 +114,10 @@
             '">' +
             common.escapeHtml(slot.time) +
             "</span>" +
+            '<div class="program-badges">' +
+            buildCurrentBadge(isCurrent) +
             buildProgramBadge(slot) +
+            "</div>" +
             "</div>" +
             '<div class="schedule-name-row">' +
             common.faIcon(slot.icon, "program-icon") +

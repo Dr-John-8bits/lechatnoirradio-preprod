@@ -49,6 +49,10 @@
     typeof window !== "undefined" && window.LCNContentData && typeof window.LCNContentData === "object"
       ? window.LCNContentData
       : {};
+  var COMMON =
+    typeof window !== "undefined" && window.LCNPageCommon && typeof window.LCNPageCommon === "object"
+      ? window.LCNPageCommon
+      : null;
   var SCHEDULE_TIMELINE_DAYS = Array.isArray(CONTENT.SCHEDULE_TIMELINE_DAYS)
     ? CONTENT.SCHEDULE_TIMELINE_DAYS
     : [];
@@ -130,6 +134,16 @@
       "<span>" +
       escapeHtml(slot.badge) +
       "</span>" +
+      "</span>"
+    );
+  }
+
+  function buildCurrentBadge(isCurrent) {
+    if (!isCurrent) return "";
+    return (
+      '<span class="current-pill" aria-label="En ce moment">' +
+      '<span class="current-pill-dot" aria-hidden="true"></span>' +
+      "<span>En ce moment</span>" +
       "</span>"
     );
   }
@@ -357,6 +371,13 @@
     return SCHEDULE_TIMELINE_DAYS.find(function (day) {
       return day.id === dayId;
     }) || SCHEDULE_TIMELINE_DAYS[0];
+  }
+
+  function getCurrentScheduleSlot(day) {
+    if (COMMON && typeof COMMON.findCurrentScheduleSlot === "function") {
+      return COMMON.findCurrentScheduleSlot(day);
+    }
+    return null;
   }
 
   function getDisplayDateParts(value) {
@@ -748,12 +769,14 @@
       return slot && !slot.meta;
     });
     var picks = [];
+    var currentSlot = getCurrentScheduleSlot(day);
 
     function pushIfNeeded(slot) {
       if (!slot || picks.indexOf(slot) !== -1) return;
       picks.push(slot);
     }
 
+    pushIfNeeded(currentSlot);
     pushIfNeeded(nonMetaSlots[0]);
     pushIfNeeded(
       nonMetaSlots.find(function (slot) {
@@ -783,12 +806,15 @@
     var root = document.getElementById("homeTodayFocus");
     if (!root) return;
     var day = getScheduleDayById(getCurrentDayId());
+    var currentSlot = getCurrentScheduleSlot(day);
     var rows = getHomeTodaySlots(day);
     root.innerHTML = rows
       .map(function (slot) {
+        var isCurrent = currentSlot === slot;
         return (
           '<article class="' +
           getProgramItemClasses("today-focus", slot) +
+          (isCurrent ? " is-current-slot" : "") +
           '">' +
           '<div class="today-focus-top">' +
           '<span class="today-focus-time' +
@@ -796,7 +822,10 @@
           '">' +
           escapeHtml(slot.time) +
           "</span>" +
+          '<div class="program-badges">' +
+          buildCurrentBadge(isCurrent) +
           buildProgramBadge(slot) +
+          "</div>" +
           "</div>" +
           '<div class="today-focus-title-row">' +
           faIcon(slot.icon, "program-icon") +

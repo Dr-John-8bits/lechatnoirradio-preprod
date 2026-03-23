@@ -907,6 +907,14 @@ input[type="range"] {
   flex-wrap: wrap;
 }
 
+.program-badges {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
 .today-focus-title-row,
 .schedule-name-row {
   display: flex;
@@ -942,6 +950,36 @@ input[type="range"] {
   text-transform: uppercase;
   white-space: nowrap;
   backdrop-filter: blur(10px);
+}
+
+.current-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.42rem;
+  max-width: 100%;
+  padding: 0.28rem 0.64rem;
+  color: rgba(255, 236, 236, 0.96);
+  border: 1px solid rgba(255, 107, 107, 0.28);
+  border-radius: 999px;
+  background: rgba(120, 16, 16, 0.18);
+  font-size: 0.64rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.03),
+    0 0 1.2rem rgba(177, 36, 36, 0.08);
+}
+
+.current-pill-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: radial-gradient(circle at 35% 35%, #ffd4d4, #ff5959 58%, #8c1313 100%);
+  box-shadow: 0 0 0 0 rgba(255, 89, 89, 0.32);
+  animation: livePulse 1.9s ease-in-out infinite;
 }
 
 .program-badge > * {
@@ -1141,6 +1179,16 @@ input[type="range"] {
   color: var(--slot-badge-text);
   border-color: var(--slot-badge-border);
   background: var(--slot-badge-bg);
+}
+
+.today-focus.is-current-slot,
+.schedule-item.is-current-slot {
+  background:
+    linear-gradient(90deg, rgba(242, 202, 80, 0.08), transparent 54%),
+    rgba(12, 12, 12, 0.74);
+  box-shadow:
+    inset 2px 0 0 rgba(242, 202, 80, 0.72),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04);
 }
 
 .panel-link {
@@ -1381,6 +1429,20 @@ input[type="range"] {
 .schedule-day-head p {
   margin: 0;
   color: var(--text-soft);
+}
+
+.schedule-day-side {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+}
+
+.schedule-day-note {
+  max-width: 42rem;
+  margin-top: 0.15rem;
+  color: var(--text-soft);
+  font-size: 0.86rem;
+  line-height: 1.55;
 }
 
 .schedule-item {
@@ -2506,6 +2568,18 @@ input[type="range"] {
   100% {
     transform: translate3d(210%, 0, 0) skewX(-22deg);
     opacity: 0;
+  }
+}
+
+@keyframes livePulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 89, 89, 0.3);
+    transform: scale(0.96);
+  }
+  50% {
+    box-shadow: 0 0 0 0.42rem rgba(255, 89, 89, 0);
+    transform: scale(1.08);
   }
 }
 

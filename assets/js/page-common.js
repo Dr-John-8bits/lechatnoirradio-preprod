@@ -1,5 +1,6 @@
 (function () {
   var CONTACT_EMAIL = "radio@lechatnoirradio.fr";
+  var DISPLAY_TIME_ZONE = "Europe/Paris";
 
   var ICONS = {
     news:
@@ -87,7 +88,7 @@
   function getCurrentDayId() {
     try {
       var weekday = new Intl.DateTimeFormat("en-US", {
-        timeZone: "Europe/Paris",
+        timeZone: DISPLAY_TIME_ZONE,
         weekday: "short",
       })
         .format(new Date())
@@ -109,6 +110,64 @@
     }
   }
 
+  function parseScheduleTimeLabel(rawValue) {
+    var raw = asString(rawValue).toLowerCase();
+    if (!raw) return null;
+    var match = raw.match(/^(\d{1,2})\s*[h:]\s*(\d{2})$/);
+    if (!match) return null;
+    var hour = Number(match[1]);
+    var minute = Number(match[2]);
+    if (!Number.isFinite(hour) || !Number.isFinite(minute)) return null;
+    return hour * 60 + minute;
+  }
+
+  function getCurrentLocalMinutes() {
+    try {
+      var parts = new Intl.DateTimeFormat("en-GB", {
+        timeZone: DISPLAY_TIME_ZONE,
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      }).formatToParts(new Date());
+      var map = {};
+      parts.forEach(function (part) {
+        if (part.type !== "literal") map[part.type] = part.value;
+      });
+      return Number(map.hour || 0) * 60 + Number(map.minute || 0);
+    } catch (error) {
+      var now = new Date();
+      return now.getHours() * 60 + now.getMinutes();
+    }
+  }
+
+  function findCurrentScheduleSlot(day) {
+    if (!day || !Array.isArray(day.slots) || !day.slots.length) return null;
+    var currentMinutes = getCurrentLocalMinutes();
+    var lastExplicitMinutes = null;
+    var candidate = null;
+
+    day.slots.forEach(function (slot, index) {
+      var explicitMinutes = parseScheduleTimeLabel(slot && slot.time);
+      if (explicitMinutes != null) {
+        lastExplicitMinutes = explicitMinutes;
+      }
+      if (lastExplicitMinutes == null || lastExplicitMinutes > currentMinutes) return;
+      if (
+        !candidate ||
+        lastExplicitMinutes > candidate.startMinutes ||
+        (lastExplicitMinutes === candidate.startMinutes && index > candidate.index)
+      ) {
+        candidate = {
+          slot: slot,
+          index: index,
+          startMinutes: lastExplicitMinutes,
+        };
+      }
+    });
+
+    return candidate ? candidate.slot : null;
+  }
+
   function initPageChrome(scope) {
     fillIconSlots(scope || document);
     markActiveNav();
@@ -124,6 +183,9 @@
     buildMailtoHref: buildMailtoHref,
     renderShowActionLabel: renderShowActionLabel,
     getCurrentDayId: getCurrentDayId,
+    parseScheduleTimeLabel: parseScheduleTimeLabel,
+    getCurrentLocalMinutes: getCurrentLocalMinutes,
+    findCurrentScheduleSlot: findCurrentScheduleSlot,
     initPageChrome: initPageChrome,
   };
 })();
