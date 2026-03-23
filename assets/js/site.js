@@ -7,6 +7,10 @@
   var CONTACT_EMAIL = "radio@lechatnoirradio.fr";
   var VOLUME_STORAGE_KEY = "lcn-player-volume";
   var DISPLAY_TIME_ZONE = "Europe/Paris";
+  var HISTORY_CACHE_KEY = "lcn-history-preview-v1";
+  var HISTORY_CACHE_AT_KEY = "lcn-history-preview-at";
+  var HISTORY_CACHE_MAX_ROWS = 240;
+  var HISTORY_CACHE_MAX_AGE_MS = 3 * 60 * 1000;
 
   var ICONS = {
     play:
@@ -785,6 +789,19 @@
     return STREAM_URL + "?t=" + Date.now();
   }
 
+  function isIosDevice() {
+    var ua = String((window.navigator && window.navigator.userAgent) || "");
+    var platform = String((window.navigator && window.navigator.platform) || "");
+    var maxTouchPoints = Number((window.navigator && window.navigator.maxTouchPoints) || 0);
+    return /iPad|iPhone|iPod/.test(ua) || (platform === "MacIntel" && maxTouchPoints > 1);
+  }
+
+  function prefersNativePlayerControls() {
+    var ua = String((window.navigator && window.navigator.userAgent) || "");
+    if (!isIosDevice()) return false;
+    return /CriOS|FxiOS|EdgiOS|OPiOS|GSA\//.test(ua);
+  }
+
   function markUserGesture() {
     state.lastUserGestureAt = Date.now();
   }
@@ -839,6 +856,7 @@
 
   function renderHomePage() {
     var today = getScheduleDayById(getCurrentDayId());
+    var nativePreferred = prefersNativePlayerControls();
     return (
       '<section class="page hero">' +
       '<div class="surface-panel hero-main">' +
@@ -848,7 +866,17 @@
       '<span class="orbital-rim-alt"></span>' +
       '<span class="orbital-rim-soft"></span>' +
       '<div class="orbital-core"></div>' +
-      '<button class="hero-play" type="button" aria-label="Lancer ou mettre en pause le direct" data-audio-toggle data-button-kind="hero"></button>' +
+      '<button class="hero-play' +
+      (nativePreferred ? " is-native-handoff" : "") +
+      '" type="button" aria-label="' +
+      escapeHtml(
+        nativePreferred
+          ? "Utiliser le lecteur audio natif ci-dessous"
+          : "Lancer ou mettre en pause le direct"
+      ) +
+      '" ' +
+      (nativePreferred ? 'data-native-player-handoff="true"' : 'data-audio-toggle data-button-kind="hero"') +
+      "></button>" +
       "</div>" +
       '<div class="hero-ticker-row">' +
       '<div class="hero-ticker-wrap">' +
@@ -889,6 +917,9 @@
       "</div>" +
       '<div class="native-player-shell">' +
       '<div id="nativePlayerHost" class="native-player-host"></div>' +
+      (nativePreferred
+        ? '<p class="native-player-note">Sur iPhone et iPad avec Chrome ou Firefox, utilise ce lecteur pour le direct.</p>'
+        : "") +
       "</div>" +
       "</div>" +
       "</div>" +
@@ -1223,6 +1254,46 @@
     refs.audio.setAttribute("controls", "controls");
     if (refs.audio.parentNode !== host) {
       host.appendChild(refs.audio);
+    }
+  }
+
+  function nudgeNativePlayer() {
+    var shell = document.querySelector(".native-player-shell");
+    var player = document.querySelector(".native-audio-player");
+    if (shell) {
+      shell.classList.remove("is-highlighted");
+      void shell.offsetWidth;
+      shell.classList.add("is-highlighted");
+      window.setTimeout(function () {
+        shell.classList.remove("is-highlighted");
+      }, 1400);
+    }
+    if (player && typeof player.scrollIntoView === "function") {
+      player.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }
+
+  function saveHistoryCache(rows) {
+    try {
+      var previewRows = getSortedHistoryRows(rows).slice(0, HISTORY_CACHE_MAX_ROWS);
+      window.localStorage.setItem(HISTORY_CACHE_KEY, JSON.stringify(previewRows));
+      window.localStorage.setItem(HISTORY_CACHE_AT_KEY, String(Date.now()));
+    } catch (error) {
+      return;
+    }
+  }
+
+  function loadHistoryCache() {
+    try {
+      var cachedAt = Number(window.localStorage.getItem(HISTORY_CACHE_AT_KEY) || 0);
+      if (!cachedAt || Date.now() - cachedAt > HISTORY_CACHE_MAX_AGE_MS) return null;
+      var raw = window.localStorage.getItem(HISTORY_CACHE_KEY);
+      if (!raw) return null;
+      var rows = JSON.parse(raw);
+      if (!Array.isArray(rows) || !rows.length) return null;
+      return rows;
+    } catch (error) {
+      return null;
     }
   }
 
@@ -1887,6 +1958,7 @@
       var response = await fetch(HISTORY_CSV_URL + "?t=" + Date.now(), { cache: "no-store" });
       if (!response.ok) throw new Error(String(response.status));
       state.historyRows = parseCsvRows(await response.text());
+      saveHistoryCache(state.historyRows);
       state.historyStatus = "Source : history/nowplaying.csv • mise à jour active";
       renderHomeRecentList();
       renderHistoryView();
@@ -1996,6 +2068,13 @@
   function bindPageEvents() {
     refs.pageRoot.querySelectorAll("[data-audio-toggle]").forEach(function (button) {
       bindAudioToggleButton(button);
+    });
+
+    refs.pageRoot.querySelectorAll("[data-native-player-handoff]").forEach(function (button) {
+      button.addEventListener("click", function (event) {
+        if (event && event.cancelable) event.preventDefault();
+        nudgeNativePlayer();
+      });
     });
 
     var heroShareButton = document.getElementById("heroShareButton");
@@ -2222,6 +2301,12 @@
       return;
     }
     if (state.route === "historique") {
+      var cachedRows = loadHistoryCache();
+      if (cachedRows && cachedRows.length) {
+        state.historyRows = cachedRows;
+        state.historyStatus = "Chargement des dernières diffusions…";
+        renderHistoryView();
+      }
       refreshHistory();
       window.setInterval(refreshHistory, 20000);
     }
