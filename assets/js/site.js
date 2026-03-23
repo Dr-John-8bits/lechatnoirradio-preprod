@@ -460,9 +460,9 @@
       var value = Number(raw);
       if (Number.isFinite(value) && value >= 0 && value <= 1) return value;
     } catch (error) {
-      return 0.72;
+      return 1;
     }
-    return 0.72;
+    return 1;
   }
 
   function saveVolume(value) {
