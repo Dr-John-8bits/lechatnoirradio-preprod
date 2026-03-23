@@ -652,40 +652,6 @@ input[type="range"] {
   width: min(100%, 30rem);
 }
 
-.native-player-shell {
-  width: min(100%, 30rem);
-  padding: 0.4rem;
-  border-radius: 999px;
-  background: rgba(7, 7, 7, 0.86);
-  box-shadow:
-    0 16px 42px rgba(0, 0, 0, 0.28),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.08);
-}
-
-.native-player-shell.is-highlighted {
-  box-shadow:
-    0 18px 48px rgba(242, 202, 80, 0.18),
-    inset 0 0 0 1px rgba(242, 202, 80, 0.28);
-}
-
-.native-player-host {
-  display: grid;
-}
-
-.native-audio-player {
-  display: block;
-  width: 100%;
-  min-width: 0;
-}
-
-.native-player-note {
-  margin: 0.45rem 0 0;
-  color: var(--text-soft);
-  font-size: 0.76rem;
-  line-height: 1.4;
-  text-align: center;
-}
-
 .hero-volume-wrap {
   position: relative;
   display: flex;

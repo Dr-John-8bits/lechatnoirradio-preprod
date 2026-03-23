@@ -789,27 +789,11 @@
     return STREAM_URL + "?t=" + Date.now();
   }
 
-  function isIosDevice() {
-    var ua = String((window.navigator && window.navigator.userAgent) || "");
-    var platform = String((window.navigator && window.navigator.platform) || "");
-    var maxTouchPoints = Number((window.navigator && window.navigator.maxTouchPoints) || 0);
-    return /iPad|iPhone|iPod/.test(ua) || (platform === "MacIntel" && maxTouchPoints > 1);
-  }
-
-  function prefersNativePlayerControls() {
-    var ua = String((window.navigator && window.navigator.userAgent) || "");
-    if (!isIosDevice()) return false;
-    return /CriOS|FxiOS|EdgiOS|OPiOS|GSA\//.test(ua);
-  }
-
   function markUserGesture() {
     state.lastUserGestureAt = Date.now();
   }
 
   function handleAudioToggleInteraction(event) {
-    if (event && event.cancelable) {
-      event.preventDefault();
-    }
     markUserGesture();
     togglePlayback();
   }
@@ -856,7 +840,6 @@
 
   function renderHomePage() {
     var today = getScheduleDayById(getCurrentDayId());
-    var nativePreferred = prefersNativePlayerControls();
     return (
       '<section class="page hero">' +
       '<div class="surface-panel hero-main">' +
@@ -866,17 +849,7 @@
       '<span class="orbital-rim-alt"></span>' +
       '<span class="orbital-rim-soft"></span>' +
       '<div class="orbital-core"></div>' +
-      '<button class="hero-play' +
-      (nativePreferred ? " is-native-handoff" : "") +
-      '" type="button" aria-label="' +
-      escapeHtml(
-        nativePreferred
-          ? "Utiliser le lecteur audio natif ci-dessous"
-          : "Lancer ou mettre en pause le direct"
-      ) +
-      '" ' +
-      (nativePreferred ? 'data-native-player-handoff="true"' : 'data-audio-toggle data-button-kind="hero"') +
-      "></button>" +
+      '<button class="hero-play" type="button" aria-label="Lancer ou mettre en pause le direct" data-audio-toggle data-button-kind="hero"></button>' +
       "</div>" +
       '<div class="hero-ticker-row">' +
       '<div class="hero-ticker-wrap">' +
@@ -914,12 +887,6 @@
       "<span>Ouvrir le flux</span>" +
       "</a>" +
       "</div>" +
-      "</div>" +
-      '<div class="native-player-shell">' +
-      '<div id="nativePlayerHost" class="native-player-host"></div>' +
-      (nativePreferred
-        ? '<p class="native-player-note">Sur iPhone et iPad avec Chrome ou Firefox, utilise ce lecteur pour le direct.</p>'
-        : "") +
       "</div>" +
       "</div>" +
       "</div>" +
@@ -1236,7 +1203,6 @@
     if (state.route === "historique") html = renderHistoryPage();
     if (!html) html = renderHomePage();
     refs.pageRoot.innerHTML = html;
-    attachNativePlayer();
     fillIconSlots(refs.pageRoot);
     bindPageEvents();
     updateUi();
@@ -1244,33 +1210,6 @@
       refreshMarquee(refs.dockTicker);
       refreshMarquee(document.getElementById("heroTicker"));
     });
-  }
-
-  function attachNativePlayer() {
-    if (state.route !== "home" || !refs.audio) return;
-    var host = document.getElementById("nativePlayerHost");
-    if (!host) return;
-    refs.audio.className = "native-audio-player";
-    refs.audio.setAttribute("controls", "controls");
-    if (refs.audio.parentNode !== host) {
-      host.appendChild(refs.audio);
-    }
-  }
-
-  function nudgeNativePlayer() {
-    var shell = document.querySelector(".native-player-shell");
-    var player = document.querySelector(".native-audio-player");
-    if (shell) {
-      shell.classList.remove("is-highlighted");
-      void shell.offsetWidth;
-      shell.classList.add("is-highlighted");
-      window.setTimeout(function () {
-        shell.classList.remove("is-highlighted");
-      }, 1400);
-    }
-    if (player && typeof player.scrollIntoView === "function") {
-      player.scrollIntoView({ behavior: "smooth", block: "center" });
-    }
   }
 
   function saveHistoryCache(rows) {
@@ -1771,120 +1710,33 @@
 
   function markAudioProgress() {
     state.lastProgressAt = Date.now();
-    state.reconnectAttempts = 0;
-    clearReconnectTimer();
-    clearStallTimer();
     state.connectionState = "playing";
     updateUi();
   }
 
-  function scheduleStallCheck(reason) {
-    if (!state.userWantsPlay) return;
-    clearStallTimer();
-    state.stallTimer = window.setTimeout(function () {
-      if (!state.userWantsPlay) return;
-      var blockedForLong = Date.now() - state.lastProgressAt >= 10000;
-      var streamLooksStuck = refs.audio.readyState <= 2 || refs.audio.ended || refs.audio.paused;
-      if (blockedForLong && streamLooksStuck) {
-        scheduleReconnect(reason || "stalled");
-      }
-    }, 10000);
-  }
-
-  function scheduleReconnect(reason, immediate) {
-    if (!state.userWantsPlay) return;
-    if (state.reconnectTimer) return;
-    clearStallTimer();
-    state.connectionState = "reconnecting";
+  function handlePlayFailure(error) {
+    var blockedByPolicy =
+      error &&
+      (error.name === "NotAllowedError" || error.name === "SecurityError");
+    state.userWantsPlay = false;
+    state.connectionState = blockedByPolicy ? "blocked" : "idle";
     updateUi();
-
-    var delay = 0;
-    if (!immediate) {
-      var step = Math.min(state.reconnectAttempts, 5);
-      delay = Math.min(15000, 1000 * Math.pow(2, step));
-      delay += Math.floor(Math.random() * 400);
-    }
-
-    state.reconnectTimer = window.setTimeout(function () {
-      state.reconnectTimer = null;
-      attemptPlayback(true, reason || "reconnect");
-    }, delay);
   }
 
-  async function attemptPlayback(cacheBust) {
-    state.connectionState = "loading";
-    updateUi();
-    clearReconnectTimer();
-    clearStallTimer();
-    state.manualPausePending = false;
-
-    try {
-      state.suppressPauseIntent = true;
-      refs.audio.pause();
-      refs.audio.src = buildStreamUrl(Boolean(cacheBust));
-      refs.audio.load();
-      state.usingCacheBustSource = Boolean(cacheBust);
-    } catch (error) {
-      state.suppressPauseIntent = false;
-    }
-
-    window.setTimeout(function () {
-      state.suppressPauseIntent = false;
-    }, 700);
-
-    try {
-      var playPromise = refs.audio.play();
-      if (playPromise && typeof playPromise.then === "function") {
-        await playPromise;
-      }
-      state.userWantsPlay = true;
-      state.connectionState = "playing";
-      updateUi();
-    } catch (error) {
-      state.reconnectAttempts = Math.min(state.reconnectAttempts + 1, 8);
-      var blockedByPolicy =
-        error &&
-        (error.name === "NotAllowedError" || error.name === "SecurityError");
-      if (blockedByPolicy) {
-        state.userWantsPlay = false;
-        state.connectionState = "blocked";
-        updateUi();
-        return;
-      }
-      scheduleReconnect("play-failed", false);
-    }
-  }
-
-  async function requestPlayback() {
-    clearReconnectTimer();
-    clearStallTimer();
+  function requestPlayback() {
     state.manualPausePending = false;
     state.userWantsPlay = true;
+    state.connectionState = "loading";
+    updateUi();
 
     try {
-      if (!refs.audio.currentSrc || refs.audio.networkState === 0) {
-        refs.audio.load();
-      }
+      refs.audio.load();
       var playPromise = refs.audio.play();
-      state.connectionState = "loading";
-      updateUi();
       if (playPromise && typeof playPromise.then === "function") {
-        await playPromise;
+        playPromise.catch(handlePlayFailure);
       }
-      state.connectionState = "playing";
-      updateUi();
     } catch (error) {
-      state.reconnectAttempts = Math.min(state.reconnectAttempts + 1, 8);
-      var blockedByPolicy =
-        error &&
-        (error.name === "NotAllowedError" || error.name === "SecurityError");
-      if (blockedByPolicy) {
-        state.userWantsPlay = false;
-        state.connectionState = "blocked";
-        updateUi();
-        return;
-      }
-      scheduleReconnect("play-failed", false);
+      handlePlayFailure(error);
     }
   }
 
@@ -2070,13 +1922,6 @@
       bindAudioToggleButton(button);
     });
 
-    refs.pageRoot.querySelectorAll("[data-native-player-handoff]").forEach(function (button) {
-      button.addEventListener("click", function (event) {
-        if (event && event.cancelable) event.preventDefault();
-        nudgeNativePlayer();
-      });
-    });
-
     var heroShareButton = document.getElementById("heroShareButton");
     if (heroShareButton) {
       heroShareButton.addEventListener("click", function () {
@@ -2208,11 +2053,6 @@
     if (!refs.audio) return;
     refs.audio.volume = state.volume;
 
-    refs.audio.addEventListener("pointerdown", markUserGesture);
-    refs.audio.addEventListener("mousedown", markUserGesture);
-    refs.audio.addEventListener("touchstart", markUserGesture, { passive: true });
-    refs.audio.addEventListener("keydown", markUserGesture);
-
     refs.audio.addEventListener("play", function () {
       state.isPlaying = true;
       state.userWantsPlay = true;
@@ -2240,11 +2080,8 @@
         updateUi();
         return;
       }
-      if (state.userWantsPlay) {
-        scheduleStallCheck("paused-unexpected");
-      } else {
-        state.connectionState = "idle";
-      }
+      state.userWantsPlay = false;
+      state.connectionState = "idle";
       updateUi();
     });
 
@@ -2255,35 +2092,32 @@
     refs.audio.addEventListener("canplaythrough", markAudioProgress);
 
     refs.audio.addEventListener("waiting", function () {
-      scheduleStallCheck("waiting");
+      if (!state.userWantsPlay) return;
+      state.connectionState = "loading";
+      updateUi();
     });
     refs.audio.addEventListener("stalled", function () {
-      scheduleStallCheck("stalled");
+      if (!state.userWantsPlay) return;
+      state.connectionState = "loading";
+      updateUi();
     });
     refs.audio.addEventListener("suspend", function () {
-      scheduleStallCheck("suspend");
+      if (!state.userWantsPlay) return;
+      state.connectionState = "loading";
+      updateUi();
     });
     refs.audio.addEventListener("ended", function () {
-      scheduleReconnect("ended");
+      state.userWantsPlay = false;
+      state.connectionState = "idle";
+      updateUi();
     });
     refs.audio.addEventListener("emptied", function () {
-      scheduleReconnect("emptied");
+      if (!state.userWantsPlay) return;
+      state.connectionState = "idle";
+      updateUi();
     });
     refs.audio.addEventListener("error", function () {
-      scheduleReconnect("error");
-    });
-
-    window.addEventListener("online", function () {
-      if (!state.userWantsPlay) return;
-      scheduleReconnect("online", true);
-    });
-
-    document.addEventListener("visibilitychange", function () {
-      if (document.hidden) return;
-      if (!state.userWantsPlay) return;
-      if (refs.audio.paused || refs.audio.readyState <= 2) {
-        scheduleReconnect("visible", true);
-      }
+      handlePlayFailure();
     });
   }
 
