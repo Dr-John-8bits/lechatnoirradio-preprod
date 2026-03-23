@@ -1826,6 +1826,11 @@ input[type="range"] {
     background 220ms ease;
 }
 
+.contact-cta-wrap {
+  display: flex;
+  justify-content: flex-start;
+}
+
 .contrib-kicker {
   margin: 0;
   color: var(--gold);
@@ -1878,6 +1883,39 @@ input[type="range"] {
 .contrib-action:hover {
   transform: translateY(-1px);
   background: rgba(242, 202, 80, 0.11);
+}
+
+.contact-cta {
+  isolation: isolate;
+  min-height: 3rem;
+  padding: 0.84rem 1.05rem;
+  background: rgba(242, 202, 80, 0.08);
+  box-shadow:
+    inset 0 0 0 1px rgba(242, 202, 80, 0.14),
+    0 0 0 1px rgba(242, 202, 80, 0.02);
+}
+
+.contact-cta-content {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.58rem;
+}
+
+.contact-cta-halo {
+  position: absolute;
+  inset: 0.2rem;
+  border-radius: inherit;
+  background:
+    radial-gradient(circle at 18% 50%, rgba(255, 224, 123, 0.26), transparent 58%),
+    radial-gradient(circle at 82% 52%, rgba(255, 241, 194, 0.1), transparent 62%);
+  opacity: 0.72;
+  filter: blur(9px);
+  transform: scale(0.94);
+  z-index: 0;
+  pointer-events: none;
+  animation: contactHaloDrift 5.4s ease-in-out infinite;
 }
 
 .contact-card {
@@ -2277,6 +2315,11 @@ input[type="range"] {
   .contrib-action:hover::after {
     animation: ctaSweep 880ms ease;
   }
+
+  .contact-cta:hover .contact-cta-halo {
+    opacity: 0.94;
+    transform: scale(0.98);
+  }
 }
 
 .icon-slot svg {
@@ -2660,6 +2703,18 @@ input[type="range"] {
   100% {
     transform: translate3d(290%, 0, 0) skewX(-18deg);
     opacity: 0;
+  }
+}
+
+@keyframes contactHaloDrift {
+  0%,
+  100% {
+    opacity: 0.66;
+    transform: scale(0.94) translate3d(0, 0, 0);
+  }
+  50% {
+    opacity: 0.92;
+    transform: scale(1) translate3d(0.18rem, 0, 0);
   }
 }
 
