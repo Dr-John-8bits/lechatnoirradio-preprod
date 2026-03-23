@@ -3,7 +3,10 @@
   var STREAM_URL = STREAM_BASE_URL + "/stream.mp3";
   var NOW_PLAYING_URL = STREAM_BASE_URL + "/nowplaying.json";
   var HISTORY_CSV_URL = STREAM_BASE_URL + "/history/nowplaying.csv";
-  var SITE_URL = "https://lechatnoirradio.fr/";
+  var SITE_URL = new URL("index.html", window.location.href).href;
+  var APP_ICON_180_URL = new URL("apple-touch-icon.png", window.location.href).href;
+  var APP_ICON_192_URL = new URL("icon-192.png", window.location.href).href;
+  var APP_ICON_512_URL = new URL("icon-512.png", window.location.href).href;
   var CONTACT_EMAIL = "radio@lechatnoirradio.fr";
   var VOLUME_STORAGE_KEY = "lcn-player-volume";
   var DISPLAY_TIME_ZONE = "Europe/Paris";
@@ -1863,10 +1866,20 @@
       navigator.mediaSession.metadata = new window.MediaMetadata({
         title: asString(state.currentTrack.title) || "Le Chat Noir",
         artist: asString(state.currentTrack.artist) || "Le Chat Noir",
-        album: asString(state.currentTrack.album) || "Webradio nocturne",
+        album: asString(state.currentTrack.album) || "Laboratoire radiophonique indépendant",
         artwork: [
           {
-            src: SITE_URL + "assets/media/brand/logo.png",
+            src: APP_ICON_180_URL,
+            sizes: "180x180",
+            type: "image/png",
+          },
+          {
+            src: APP_ICON_192_URL,
+            sizes: "192x192",
+            type: "image/png",
+          },
+          {
+            src: APP_ICON_512_URL,
             sizes: "512x512",
             type: "image/png",
           },
