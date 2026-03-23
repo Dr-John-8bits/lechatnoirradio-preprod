@@ -349,6 +349,7 @@
     reconnectAttempts: 0,
     lastProgressAt: Date.now(),
     lastUserGestureAt: 0,
+    lastToggleInteractionAt: 0,
     reconnectTimer: null,
     stallTimer: null,
     suppressPauseIntent: false,
@@ -790,6 +791,34 @@
 
   function markUserGesture() {
     state.lastUserGestureAt = Date.now();
+  }
+
+  function handleAudioToggleInteraction(event) {
+    if (event) {
+      if (event.type === "click" && Date.now() - state.lastToggleInteractionAt < 700) {
+        if (event.cancelable) event.preventDefault();
+        return;
+      }
+      if (event.type === "pointerup" || event.type === "touchend") {
+        state.lastToggleInteractionAt = Date.now();
+        if (event.cancelable) event.preventDefault();
+      }
+    }
+    markUserGesture();
+    togglePlayback();
+  }
+
+  function bindAudioToggleButton(button) {
+    if (!button || button.dataset.audioToggleBound === "true") return;
+    button.dataset.audioToggleBound = "true";
+    if ("PointerEvent" in window) {
+      button.addEventListener("pointerup", handleAudioToggleInteraction);
+    } else {
+      button.addEventListener("touchend", handleAudioToggleInteraction, {
+        passive: false,
+      });
+    }
+    button.addEventListener("click", handleAudioToggleInteraction);
   }
 
   function buildMailtoHref(action) {
@@ -1775,18 +1804,21 @@
   }
 
   async function requestPlayback() {
-    state.connectionState = "loading";
-    updateUi();
     clearReconnectTimer();
     clearStallTimer();
     state.manualPausePending = false;
+    state.userWantsPlay = true;
 
     try {
+      if (!refs.audio.currentSrc || refs.audio.networkState === 0) {
+        refs.audio.load();
+      }
       var playPromise = refs.audio.play();
+      state.connectionState = "loading";
+      updateUi();
       if (playPromise && typeof playPromise.then === "function") {
         await playPromise;
       }
-      state.userWantsPlay = true;
       state.connectionState = "playing";
       updateUi();
     } catch (error) {
@@ -1820,8 +1852,6 @@
       pausePlayback();
       return;
     }
-    markUserGesture();
-    state.userWantsPlay = true;
     requestPlayback();
   }
 
@@ -1984,11 +2014,7 @@
 
   function bindPageEvents() {
     refs.pageRoot.querySelectorAll("[data-audio-toggle]").forEach(function (button) {
-      button.addEventListener("pointerdown", markUserGesture);
-      button.addEventListener("mousedown", markUserGesture);
-      button.addEventListener("touchstart", markUserGesture, { passive: true });
-      button.addEventListener("keydown", markUserGesture);
-      button.addEventListener("click", togglePlayback);
+      bindAudioToggleButton(button);
     });
 
     var heroShareButton = document.getElementById("heroShareButton");
@@ -2081,11 +2107,7 @@
     renderPlayButtons();
     updateRouteLinks();
 
-    refs.dockToggle.addEventListener("pointerdown", markUserGesture);
-    refs.dockToggle.addEventListener("mousedown", markUserGesture);
-    refs.dockToggle.addEventListener("touchstart", markUserGesture, { passive: true });
-    refs.dockToggle.addEventListener("keydown", markUserGesture);
-    refs.dockToggle.addEventListener("click", togglePlayback);
+    bindAudioToggleButton(refs.dockToggle);
     if (refs.dockVolumeButton) {
       refs.dockVolumeButton.addEventListener("click", function () {
         setDockVolumePopover(!state.dockVolumeOpen, !state.dockVolumeOpen);
