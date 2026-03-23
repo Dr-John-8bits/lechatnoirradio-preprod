@@ -42,9 +42,9 @@
   function buildCurrentBadge(isCurrent) {
     if (!isCurrent) return "";
     return (
-      '<span class="current-pill" aria-label="En ce moment">' +
+      '<span class="current-pill" aria-label="En ce moment, peut-être">' +
       '<span class="current-pill-dot" aria-hidden="true"></span>' +
-      "<span>En ce moment</span>" +
+      "<span>En ce moment, peut-être</span>" +
       "</span>"
     );
   }

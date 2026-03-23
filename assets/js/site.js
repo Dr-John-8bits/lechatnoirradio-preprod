@@ -141,9 +141,9 @@
   function buildCurrentBadge(isCurrent) {
     if (!isCurrent) return "";
     return (
-      '<span class="current-pill" aria-label="En ce moment">' +
+      '<span class="current-pill" aria-label="En ce moment, peut-être">' +
       '<span class="current-pill-dot" aria-hidden="true"></span>' +
-      "<span>En ce moment</span>" +
+      "<span>En ce moment, peut-être</span>" +
       "</span>"
     );
   }
@@ -443,6 +443,17 @@
       });
   }
 
+  function getTrackSignature(meta) {
+    return [
+      asString(meta && meta.artist).toLowerCase(),
+      asString(meta && meta.title).toLowerCase(),
+      asString(meta && meta.album).toLowerCase(),
+      parseYear(meta && meta.year).toLowerCase(),
+    ]
+      .filter(Boolean)
+      .join("||");
+  }
+
   function loadSavedVolume() {
     try {
       var raw = window.localStorage.getItem(VOLUME_STORAGE_KEY);
@@ -623,6 +634,28 @@
       return state.sortedHistoryRows;
     }
     return getSortedHistoryRows(state.historyRows);
+  }
+
+  function syncRecentHistoryFromNowPlaying(track) {
+    var signature = getTrackSignature(track);
+    if (!signature) return;
+
+    var nextRows = state.historyRows.slice();
+    if (nextRows.length && getTrackSignature(nextRows[0]) === signature) {
+      return;
+    }
+
+    nextRows.unshift({
+      tsIso: new Date().toISOString(),
+      artist: asString(track.artist),
+      title: asString(track.title),
+      album: asString(track.album),
+      year: asString(track.year),
+    });
+
+    setHistoryRows(nextRows.slice(0, HISTORY_CACHE_MAX_ROWS));
+    saveHistoryCache(state.historyRows);
+    renderHomeRecentList();
   }
 
   function shouldRefreshHomeHistory() {
@@ -942,12 +975,18 @@
 
   function applyCurrentTrack(meta) {
     if (!meta) return;
-    state.currentTrack = {
+    var nextTrack = {
       artist: asString(meta.artist),
       album: asString(meta.album),
       title: asString(meta.title) || "Titre indisponible pour l'instant",
       year: asString(meta.year),
     };
+    var previousSignature = getTrackSignature(state.currentTrack);
+    var nextSignature = getTrackSignature(nextTrack);
+    state.currentTrack = nextTrack;
+    if (nextSignature && nextSignature !== previousSignature) {
+      syncRecentHistoryFromNowPlaying(nextTrack);
+    }
     updateTrackText();
   }
 
