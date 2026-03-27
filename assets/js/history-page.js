@@ -7,7 +7,7 @@
   var HISTORY_CACHE_AT_KEY = "lcn-history-preview-at";
   var HISTORY_CACHE_MAX_ROWS = 240;
   var HISTORY_CACHE_MAX_AGE_MS = 3 * 60 * 1000;
-  var DEFAULT_VISIBLE_ROWS = 10;
+  var DEFAULT_VISIBLE_ROWS = 30;
 
   var refs = {
     dayInput: document.getElementById("historyDayInput"),
