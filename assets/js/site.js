@@ -818,41 +818,17 @@
   }
 
   function getHomeTodaySlots(day) {
-    var nonMetaSlots = (day && day.slots ? day.slots : []).filter(function (slot) {
-      return slot && !slot.meta;
-    });
-    var picks = [];
+    var slots = (day && Array.isArray(day.slots) ? day.slots : []).filter(Boolean);
     var currentSlot = getCurrentScheduleSlot(day);
+    if (!slots.length) return [];
 
-    function pushIfNeeded(slot) {
-      if (!slot || picks.indexOf(slot) !== -1) return;
-      picks.push(slot);
+    var startIndex = 0;
+    if (currentSlot) {
+      var currentIndex = slots.indexOf(currentSlot);
+      if (currentIndex >= 0) startIndex = currentIndex;
     }
 
-    pushIfNeeded(currentSlot);
-    pushIfNeeded(nonMetaSlots[0]);
-    pushIfNeeded(
-      nonMetaSlots.find(function (slot) {
-        return slot && slot.icon;
-      })
-    );
-    pushIfNeeded(
-      (day.slots || []).find(function (slot) {
-        return slot && (slot.badge || slot.kind);
-      })
-    );
-    pushIfNeeded(
-      (day.slots || []).find(function (slot) {
-        return slot && slot.highlight;
-      })
-    );
-    pushIfNeeded(nonMetaSlots[nonMetaSlots.length - 1]);
-
-    for (var i = 0; i < nonMetaSlots.length && picks.length < 4; i += 1) {
-      pushIfNeeded(nonMetaSlots[i]);
-    }
-
-    return picks.slice(0, 4);
+    return slots.slice(startIndex, startIndex + 4);
   }
 
   function renderTodayFocus() {
