@@ -8,18 +8,20 @@
   var HISTORY_CACHE_MAX_ROWS = 240;
   var HISTORY_CACHE_MAX_AGE_MS = 3 * 60 * 1000;
   var DEFAULT_VISIBLE_ROWS = 30;
+  var LOAD_MORE_STEP = 30;
 
   var refs = {
     dayInput: document.getElementById("historyDayInput"),
     timeInput: document.getElementById("historyTimeInput"),
     searchButton: document.getElementById("historySearchButton"),
     list: document.getElementById("historyList"),
+    moreButton: document.getElementById("historyMoreButton"),
     modeLabel: document.getElementById("historyModeLabel"),
     statusText: document.getElementById("historyStatusText"),
     timezonePill: document.getElementById("historyTimezonePill"),
   };
 
-  if (!refs.dayInput || !refs.timeInput || !refs.searchButton || !refs.list) return;
+  if (!refs.dayInput || !refs.timeInput || !refs.searchButton || !refs.list || !refs.moreButton) return;
 
   var displayPartsFormatter = null;
   try {
@@ -41,6 +43,7 @@
     fetchCacheRows: null,
     fetchCacheAt: 0,
     autoTimer: null,
+    visibleCount: DEFAULT_VISIBLE_ROWS,
     statusText: "Chargement des dernières diffusions…",
     timezoneLabel: "UTC+01:00 / UTC+02:00 · " + DISPLAY_TIME_ZONE,
   };
@@ -309,6 +312,7 @@
   function renderRows(rows, emptyText) {
     if (!rows || !rows.length) {
       refs.list.innerHTML = '<li class="history-empty">' + escapeHtml(emptyText) + "</li>";
+      refs.moreButton.hidden = true;
       return;
     }
 
@@ -354,9 +358,13 @@
     var selectedTime = refs.timeInput.value || "";
 
     if (!selectedTime) {
+      var latestRows = getLatestRowsForDay(selectedDay, state.visibleCount);
       return {
         label: selectedDay === getTodayYmd() ? "Derniers passages du jour" : "Recherche ponctuelle : " + selectedDay,
-        rows: getLatestRowsForDay(selectedDay, DEFAULT_VISIBLE_ROWS),
+        rows: latestRows,
+        totalCount: state.rows.filter(function (row) {
+          return row && row.localYmd === selectedDay;
+        }).length,
       };
     }
 
@@ -378,7 +386,8 @@
       });
       return {
         label: "Recherche ponctuelle : titres les plus proches de " + selectedTime,
-        rows: filtered.slice(0, DEFAULT_VISIBLE_ROWS),
+        rows: filtered.slice(0, state.visibleCount),
+        totalCount: filtered.length,
       };
     }
   }
@@ -389,6 +398,7 @@
     if (refs.statusText) refs.statusText.textContent = state.statusText;
     if (refs.timezonePill) refs.timezonePill.textContent = state.timezoneLabel;
     renderRows(display.rows, emptyText || "Aucun titre trouvé pour cette sélection.");
+    refs.moreButton.hidden = !display.totalCount || display.rows.length >= display.totalCount;
   }
 
   async function fetchRows() {
@@ -446,6 +456,7 @@
   }
 
   function handleSearch() {
+    state.visibleCount = DEFAULT_VISIBLE_ROWS;
     if (!state.rows.length) {
       state.statusText = "Chargement des dernières diffusions…";
       renderView("Chargement des dernières diffusions…");
@@ -471,6 +482,10 @@
     }
 
     refs.searchButton.addEventListener("click", handleSearch);
+    refs.moreButton.addEventListener("click", function () {
+      state.visibleCount += LOAD_MORE_STEP;
+      renderView();
+    });
 
     refs.dayInput.addEventListener("change", function () {
       handleSearch();
