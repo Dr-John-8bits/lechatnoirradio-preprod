@@ -8,6 +8,7 @@
   var APP_ICON_192_URL = new URL("icon-192.png", window.location.href).href;
   var APP_ICON_512_URL = new URL("icon-512.png", window.location.href).href;
   var VOLUME_STORAGE_KEY = "lcn-player-volume";
+  var VOLUME_STORAGE_MIGRATION_KEY = "lcn-player-volume-migrated-v2";
   var DISPLAY_TIME_ZONE = "Europe/Paris";
   var HISTORY_CACHE_KEY = "lcn-history-preview-v1";
   var HISTORY_CACHE_AT_KEY = "lcn-history-preview-at";
@@ -458,7 +459,16 @@
   function loadSavedVolume() {
     try {
       var raw = window.localStorage.getItem(VOLUME_STORAGE_KEY);
+      if (raw == null || raw === "") return 1;
+      var hasMigrated = window.localStorage.getItem(VOLUME_STORAGE_MIGRATION_KEY) === "1";
       var value = Number(raw);
+      if (!hasMigrated && Number.isFinite(value) && value === 0) {
+        window.localStorage.setItem(VOLUME_STORAGE_MIGRATION_KEY, "1");
+        return 1;
+      }
+      if (!hasMigrated) {
+        window.localStorage.setItem(VOLUME_STORAGE_MIGRATION_KEY, "1");
+      }
       if (Number.isFinite(value) && value >= 0 && value <= 1) return value;
     } catch (error) {
       return 1;
@@ -538,6 +548,10 @@
       "<span>Ouvrir le flux</span>" +
       "</a>" +
       "</div>" +
+      '<p id="heroVolumeHint" class="hero-volume-hint" hidden>' +
+      icon("volume") +
+      "<span>Pas de son ? Augmente le volume.</span>" +
+      "</p>" +
       "</div>" +
       "</div>" +
       "</div>" +
@@ -720,6 +734,12 @@
     if (refs.dockState) refs.dockState.textContent = text;
   }
 
+  function updateVolumeHints() {
+    var heroVolumeHint = document.getElementById("heroVolumeHint");
+    if (!heroVolumeHint) return;
+    heroVolumeHint.hidden = !(state.isPlaying && state.volume <= 0.001);
+  }
+
   function syncVolumeInputs() {
     if (refs.audio) refs.audio.volume = state.volume;
     if (refs.dockVolumeRange) refs.dockVolumeRange.value = String(Math.round(state.volume * 100));
@@ -876,6 +896,7 @@
     fillIconSlots(document);
     updateRouteLinks();
     updateStatusText();
+    updateVolumeHints();
     updateMediaSessionPlaybackState();
     syncVolumeInputs();
     updateTrackText();
