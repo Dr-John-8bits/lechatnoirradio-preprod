@@ -73,7 +73,12 @@
     heroVolumeOpen: false,
     historyFetchAt: 0,
     isLive: false,
+    hasUserAdjustedVolume: false,
+    hasShownVolumeHint: false,
+    volumeHintVisible: false,
   };
+
+  var volumeHintTimeoutId = 0;
 
   var refs = {
     pageRoot: document.getElementById("pageRoot"),
@@ -460,6 +465,44 @@
 
   function saveVolume() {}
 
+  function showVolumeHint(durationMs) {
+    state.volumeHintVisible = true;
+    updateVolumeHints();
+    if (volumeHintTimeoutId) {
+      window.clearTimeout(volumeHintTimeoutId);
+      volumeHintTimeoutId = 0;
+    }
+    if (durationMs > 0) {
+      volumeHintTimeoutId = window.setTimeout(function () {
+        state.volumeHintVisible = false;
+        updateVolumeHints();
+      }, durationMs);
+    }
+  }
+
+  function ensurePlaybackVolumeReady() {
+    if (!refs.audio) return;
+    var shouldForceDefaultVolume = !state.hasUserAdjustedVolume;
+    var nextVolume = state.volume;
+
+    refs.audio.defaultMuted = false;
+    refs.audio.muted = false;
+
+    if (shouldForceDefaultVolume && nextVolume <= 0.001) {
+      nextVolume = 1;
+    }
+
+    if (shouldForceDefaultVolume && refs.audio.volume <= 0.001) {
+      nextVolume = 1;
+    }
+
+    refs.audio.volume = nextVolume;
+    if (state.volume !== nextVolume) {
+      state.volume = nextVolume;
+      syncVolumeInputs();
+    }
+  }
+
   function handleAudioToggleInteraction() {
     togglePlayback();
   }
@@ -495,15 +538,18 @@
       '<span id="heroTickerText" class="marquee-content">Chargement des métadonnées…</span>' +
       "</div>" +
       "</div>" +
-      "</div>" +
-      '<div class="hero-volume-wrap">' +
-      '<button id="heroVolumeButton" class="dock-volume-button hero-volume-button" type="button" aria-label="Afficher le réglage du volume" aria-expanded="false" aria-controls="heroVolumePopover">' +
+      '<div class="hero-volume-bar">' +
+      '<span class="hero-volume-label">' +
       '<span class="icon-slot" data-icon="volume"></span>' +
-      "</button>" +
-      '<div id="heroVolumePopover" class="dock-volume-popover hero-volume-popover" hidden>' +
-      '<input id="heroVolumeRange" class="dock-volume-range" type="range" min="0" max="100" step="1" value="' +
+      "<span>Volume</span>" +
+      "</span>" +
+      '<input id="heroVolumeRange" class="hero-volume-range" type="range" min="0" max="100" step="1" value="' +
       Math.round(state.volume * 100) +
       '" aria-label="Régler le volume du direct" />' +
+      '<span id="heroVolumeValue" class="hero-volume-value">' +
+      Math.round(state.volume * 100) +
+      " %" +
+      "</span>" +
       "</div>" +
       "</div>" +
       "</div>" +
@@ -526,7 +572,7 @@
       "</div>" +
       '<p id="heroVolumeHint" class="hero-volume-hint" hidden>' +
       icon("volume") +
-      "<span>Pas de son ? Augmente le volume.</span>" +
+      "<span>Pas de son ? Monte le volume ici ou sur l'appareil.</span>" +
       "</p>" +
       "</div>" +
       "</div>" +
@@ -713,14 +759,26 @@
   function updateVolumeHints() {
     var heroVolumeHint = document.getElementById("heroVolumeHint");
     if (!heroVolumeHint) return;
-    heroVolumeHint.hidden = !(state.isPlaying && state.volume <= 0.001);
+    heroVolumeHint.hidden = !(
+      state.volumeHintVisible || (state.isPlaying && state.volume <= 0.001)
+    );
   }
 
   function syncVolumeInputs() {
-    if (refs.audio) refs.audio.volume = state.volume;
-    if (refs.dockVolumeRange) refs.dockVolumeRange.value = String(Math.round(state.volume * 100));
+    var percent = String(Math.round(state.volume * 100));
+    if (refs.audio) {
+      refs.audio.defaultMuted = false;
+      refs.audio.muted = false;
+      refs.audio.volume = state.volume;
+    }
+    if (refs.dockVolumeRange) refs.dockVolumeRange.value = percent;
     var heroRange = document.getElementById("heroVolumeRange");
-    if (heroRange) heroRange.value = String(Math.round(state.volume * 100));
+    if (heroRange) {
+      heroRange.value = percent;
+      heroRange.style.setProperty("--range-value", percent + "%");
+    }
+    var heroValue = document.getElementById("heroVolumeValue");
+    if (heroValue) heroValue.textContent = percent + " %";
   }
 
   function updateTrackText() {
@@ -880,11 +938,16 @@
     renderTodayFocus();
   }
 
-  function setVolume(nextValue) {
+  function setVolume(nextValue, options) {
+    options = options || {};
     var normalized = Math.max(0, Math.min(1, nextValue));
     state.volume = normalized;
+    if (!options.preserveUserState) {
+      state.hasUserAdjustedVolume = true;
+    }
     saveVolume(normalized);
     syncVolumeInputs();
+    updateVolumeHints();
   }
 
   function setDockVolumePopover(nextValue, shouldFocus) {
@@ -937,10 +1000,18 @@
   }
 
   function requestPlayback() {
+    ensurePlaybackVolumeReady();
+    if (!state.hasShownVolumeHint) {
+      state.hasShownVolumeHint = true;
+      showVolumeHint(7200);
+    } else if (state.volume <= 0.001) {
+      showVolumeHint(7200);
+    }
     state.connectionState = "loading";
     updateUi();
 
     try {
+      ensurePlaybackVolumeReady();
       refs.audio.load();
       var playPromise = refs.audio.play();
       if (playPromise && typeof playPromise.then === "function") {
@@ -1192,12 +1263,6 @@
     }
 
     var heroVolumeRange = document.getElementById("heroVolumeRange");
-    var heroVolumeButton = document.getElementById("heroVolumeButton");
-    if (heroVolumeButton) {
-      heroVolumeButton.addEventListener("click", function () {
-        setHeroVolumePopover(!state.heroVolumeOpen, !state.heroVolumeOpen);
-      });
-    }
     if (heroVolumeRange) {
       heroVolumeRange.addEventListener("input", function () {
         setVolume(Number(heroVolumeRange.value) / 100);
@@ -1257,9 +1322,10 @@
     if (!refs.audio) return;
     refs.audio.controls = true;
     refs.audio.preload = "none";
-    refs.audio.volume = state.volume;
+    ensurePlaybackVolumeReady();
 
     refs.audio.addEventListener("play", function () {
+      ensurePlaybackVolumeReady();
       state.isPlaying = true;
       state.connectionState = "playing";
       updateUi();
@@ -1271,8 +1337,14 @@
       updateUi();
     });
 
-    refs.audio.addEventListener("playing", markAudioProgress);
-    refs.audio.addEventListener("canplay", markAudioProgress);
+    refs.audio.addEventListener("playing", function () {
+      ensurePlaybackVolumeReady();
+      markAudioProgress();
+    });
+    refs.audio.addEventListener("canplay", function () {
+      ensurePlaybackVolumeReady();
+      markAudioProgress();
+    });
 
     refs.audio.addEventListener("waiting", function () {
       if (refs.audio.paused) return;
@@ -1303,7 +1375,7 @@
     renderPage();
     updateUi();
     bindAudioEvents();
-    setVolume(state.volume);
+    setVolume(state.volume, { preserveUserState: true });
     scheduleInitialHistoryRefresh();
     refreshNowPlaying();
     window.setInterval(refreshNowPlaying, 12000);
