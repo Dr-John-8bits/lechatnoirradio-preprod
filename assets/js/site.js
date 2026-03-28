@@ -7,8 +7,6 @@
   var APP_ICON_180_URL = new URL("apple-touch-icon.png", window.location.href).href;
   var APP_ICON_192_URL = new URL("icon-192.png", window.location.href).href;
   var APP_ICON_512_URL = new URL("icon-512.png", window.location.href).href;
-  var VOLUME_STORAGE_KEY = "lcn-player-volume";
-  var VOLUME_STORAGE_MIGRATION_KEY = "lcn-player-volume-migrated-v2";
   var DISPLAY_TIME_ZONE = "Europe/Paris";
   var HISTORY_CACHE_KEY = "lcn-history-preview-v1";
   var HISTORY_CACHE_AT_KEY = "lcn-history-preview-at";
@@ -457,32 +455,10 @@
   }
 
   function loadSavedVolume() {
-    try {
-      var raw = window.localStorage.getItem(VOLUME_STORAGE_KEY);
-      if (raw == null || raw === "") return 1;
-      var hasMigrated = window.localStorage.getItem(VOLUME_STORAGE_MIGRATION_KEY) === "1";
-      var value = Number(raw);
-      if (!hasMigrated && Number.isFinite(value) && value === 0) {
-        window.localStorage.setItem(VOLUME_STORAGE_MIGRATION_KEY, "1");
-        return 1;
-      }
-      if (!hasMigrated) {
-        window.localStorage.setItem(VOLUME_STORAGE_MIGRATION_KEY, "1");
-      }
-      if (Number.isFinite(value) && value >= 0 && value <= 1) return value;
-    } catch (error) {
-      return 1;
-    }
     return 1;
   }
 
-  function saveVolume(value) {
-    try {
-      window.localStorage.setItem(VOLUME_STORAGE_KEY, String(value));
-    } catch (error) {
-      return;
-    }
-  }
+  function saveVolume() {}
 
   function handleAudioToggleInteraction() {
     togglePlayback();

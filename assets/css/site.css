@@ -569,7 +569,7 @@ input[type="range"] {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: 0.7rem;
+  gap: 0.92rem;
   width: min(100%, 30rem);
 }
 
@@ -671,11 +671,12 @@ input[type="range"] {
   position: relative;
   display: flex;
   justify-content: flex-end;
+  margin-left: 0.18rem;
 }
 
 .hero-volume-button {
-  width: 3.55rem;
-  height: 3.55rem;
+  width: 3.95rem;
+  height: 3.95rem;
 }
 
 .hero-volume-popover {
@@ -2140,8 +2141,8 @@ input[type="range"] {
 .dock-volume-button {
   display: grid;
   place-items: center;
-  width: 3.35rem;
-  height: 3.35rem;
+  width: 3.55rem;
+  height: 3.55rem;
   padding: 0;
   color: var(--gold);
   border-radius: 999px;
@@ -2381,8 +2382,8 @@ input[type="range"] {
 .mini-link .icon-slot svg,
 .inline-volume-label .icon-slot svg,
 .dock-volume-button .icon-slot svg {
-  width: 1.12rem;
-  height: 1.12rem;
+  width: 1.22rem;
+  height: 1.22rem;
 }
 
 .sheet-backdrop {
