@@ -16,7 +16,7 @@
       role: "Chronique",
       name: "Lady Em",
       image: "assets/media/producers/ladyem.webp",
-      bio: "Installe sa chronique du vestiaire dans la grille, entre velvet tips et contre-champ élégant.",
+      bio: "Démonte les mythes du vestiaire moderne sur fond de velvet tips.",
     },
     {
       role: "Jingles",
