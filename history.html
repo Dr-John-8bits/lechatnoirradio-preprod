@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Historique de diffusion — Le Chat Noir</title>
+    <meta name="description" content="Archives de diffusion du Chat Noir avec recherche par date et heure, en heure de Paris." />
+    <meta name="theme-color" content="#ece4d2" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#161310" media="(prefers-color-scheme: dark)" />
+    <link rel="canonical" href="https://lechatnoirradio.fr/history.html" />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="alternate" type="application/rss+xml" title="Actualités Le Chat Noir" href="feed.xml" />
+    <link rel="stylesheet" href="assets/css/tokens.css" />
+    <link rel="stylesheet" href="assets/css/base.css" />
+    <link rel="stylesheet" href="assets/css/shell.css" />
+    <link rel="stylesheet" href="assets/css/components.css" />
+    <script type="module" src="assets/js/page-history.js"></script>
+  </head>
+  <body>
+    <header class="top-shell">
+      <div class="top-shell__inner" style="padding-bottom: 14px;">
+        <div class="shell-head">
+          <a class="brand" href="index.html" aria-label="Le Chat Noir — retour à l'accueil">
+            <img class="brand__logo" src="assets/media/brand/logo-320.jpg" alt="" width="40" height="40" />
+            <span>
+              <span class="brand__name">Le Chat Noir</span>
+              <span class="brand__sub">les archives de la radio</span>
+            </span>
+          </a>
+          <a class="ghost-link" href="index.html">← retour au direct</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="site-main">
+      <p class="kicker kicker--accent" style="margin: 0 0 6px;">// les archives de la radio</p>
+      <h1 class="page-title">Historique de diffusion</h1>
+      <p class="page-lead">
+        Un titre t'a échappé pendant l'écoute ? Toutes les diffusions, en lecture chronologique, avec recherche
+        par date et heure. Cette page vit dans son propre onglet pour ne jamais interrompre l'écoute du direct.
+      </p>
+
+      <form class="history-form" id="historyForm">
+        <label class="field">
+          <span class="kicker">choisir une date</span>
+          <input id="historyDayInput" type="date" />
+        </label>
+        <label class="field">
+          <span class="kicker">autour de l'heure</span>
+          <input id="historyTimeInput" type="time" />
+        </label>
+        <button class="action-button" id="historySearchButton" type="submit">Rechercher</button>
+      </form>
+
+      <div class="page-section__head" style="margin-top: 28px;">
+        <h2 class="page-section__title" id="historyLabel">Dernières diffusions</h2>
+        <span class="status-line" id="historyStatus">chargement des archives…</span>
+      </div>
+
+      <ul class="track-list track-list--history" id="historyList" aria-live="polite">
+        <li><span class="track-time">--:--</span><span class="track-main">Chargement des archives…</span></li>
+      </ul>
+
+      <div class="history-actions">
+        <button class="action-button" id="historyMoreButton" type="button" hidden>Afficher davantage</button>
+        <button class="action-button action-button--ghost" id="historyReloadButton" type="button">
+          Actualiser les archives
+        </button>
+        <span class="status-line" id="historyZone"></span>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <p class="site-footer__signature">· le chat noir — historique de diffusion</p>
+      <a class="ghost-link" href="index.html">revenir à l'accueil</a>
+    </footer>
+  </body>
+</html>
