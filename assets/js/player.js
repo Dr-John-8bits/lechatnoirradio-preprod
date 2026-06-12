@@ -59,6 +59,7 @@ export function createPlayer({ streamUrl = LCN_ENDPOINTS.streamMp3, artwork = []
       if (!wantsPlayback) return;
       try {
         setState("connecting");
+        refreshStreamSource();
         audio.load();
         await audio.play();
       } catch {
@@ -96,11 +97,18 @@ export function createPlayer({ streamUrl = LCN_ENDPOINTS.streamMp3, artwork = []
     }
   });
 
+  // Connexion toujours neuve : sans cache-buster, le navigateur peut resservir
+  // son tampon (on entend le morceau d'avant). Icecast ignore les paramètres d'URL.
+  function refreshStreamSource() {
+    audio.src = `${streamUrl}${streamUrl.includes("?") ? "&" : "?"}t=${Date.now()}`;
+  }
+
   async function play() {
     wantsPlayback = true;
     cancelReconnect();
     try {
       setState("connecting");
+      refreshStreamSource();
       audio.load();
       await audio.play();
     } catch {

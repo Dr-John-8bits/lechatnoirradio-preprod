@@ -29,29 +29,50 @@ export function renderHome() {
   `;
 }
 
+function renderSlotItem(slot, isCurrent) {
+  const badge = slot.badge ? `<span class="slot-badge">${escapeHtml(slot.badge)}</span>` : "";
+  return `
+    <li${isCurrent ? ' class="is-current"' : ""}>
+      <span class="slot-time">${escapeHtml(slot.time || "")}</span>
+      <div>
+        <p class="slot-title">${escapeHtml(slot.title || "")}${badge}</p>
+        <p class="slot-desc">${escapeHtml(slot.desc || "")}</p>
+      </div>
+    </li>
+  `;
+}
+
 export function renderTodaySlots(currentShow, resolver) {
-  const day = SCHEDULE_TIMELINE_DAYS.find((d) => d.id === getCurrentDayId()) || SCHEDULE_TIMELINE_DAYS[0];
+  const dayIndex = Math.max(
+    0,
+    SCHEDULE_TIMELINE_DAYS.findIndex((d) => d.id === getCurrentDayId())
+  );
+  const day = SCHEDULE_TIMELINE_DAYS[dayIndex];
   const { rows, currentSlot } = getHomeTodayState(day, currentShow, resolver, getCurrentLocalMinutes());
 
   if (!rows.length) {
     return `<li><span class="slot-time mono">—</span><div><p class="slot-title">Grille indisponible</p></div></li>`;
   }
 
-  return rows
-    .map((slot) => {
-      const isCurrent = slot === currentSlot;
-      const badge = slot.badge ? `<span class="slot-badge">${escapeHtml(slot.badge)}</span>` : "";
-      return `
-        <li${isCurrent ? ' class="is-current"' : ""}>
-          <span class="slot-time">${escapeHtml(slot.time || "")}</span>
-          <div>
-            <p class="slot-title">${escapeHtml(slot.title || "")}${badge}</p>
-            <p class="slot-desc">${escapeHtml(slot.desc || "")}</p>
-          </div>
+  let html = rows.map((slot) => renderSlotItem(slot, slot === currentSlot)).join("");
+
+  // Fin de journée : la suite du programme vit déjà demain (ex. 23h40 →
+  // La Grande Nuit de 00h00). On complète avec les premiers créneaux du lendemain.
+  if (rows.length < 4) {
+    const nextDay = SCHEDULE_TIMELINE_DAYS[(dayIndex + 1) % SCHEDULE_TIMELINE_DAYS.length];
+    const nextSlots = (nextDay.slots || []).slice(0, 4 - rows.length);
+    if (nextSlots.length) {
+      html += `
+        <li class="slot-sep">
+          <span class="slot-time"></span>
+          <p class="kicker">demain — ${escapeHtml(nextDay.name.toLowerCase())}</p>
         </li>
       `;
-    })
-    .join("");
+      html += nextSlots.map((slot) => renderSlotItem(slot, false)).join("");
+    }
+  }
+
+  return html;
 }
 
 export function renderRecentTracks(rows) {

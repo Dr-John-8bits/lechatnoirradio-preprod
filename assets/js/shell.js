@@ -1,5 +1,5 @@
 import { REFRESH_MS, STALE_MS, HISTORY_PREVIEW_ROWS, HISTORY_CACHE_KEY, HISTORY_CACHE_AT_KEY, HISTORY_CACHE_MAX_AGE_MS } from "./config.js";
-import { fetchNowPlaying, fetchCurrentShow, fetchListeners, fetchHistoryCsv, STATUS } from "./radio-api.js";
+import { fetchNowPlaying, fetchCurrentShow, fetchHistoryCsv, STATUS } from "./radio-api.js";
 import { parseHistoryCsvChunked, enrichHistoryRow } from "./csv.js";
 import { createPlayer, shouldDisableWebVolumeControl } from "./player.js";
 import { createPoller } from "./poller.js";
@@ -38,7 +38,6 @@ const refs = {
   tickerTrack: document.getElementById("tickerTrack"),
   tickerText: document.getElementById("tickerText"),
   tickerTextClone: document.getElementById("tickerTextClone"),
-  listenersNote: document.getElementById("listenersNote"),
   mainNav: document.getElementById("mainNav"),
   pageView: document.getElementById("pageView"),
 };
@@ -247,21 +246,6 @@ async function refreshLive() {
   return anyOk;
 }
 
-async function refreshListeners() {
-  const result = await fetchListeners();
-  const data = result.data;
-  const usable =
-    result.status === STATUS.OK && data && !data.isStale && data.isForExpectedMount && data.current != null;
-
-  if (usable && data.current >= 1) {
-    refs.listenersNote.hidden = false;
-    setTextIfChanged(refs.listenersNote, `${data.current} à l'écoute`);
-  } else {
-    refs.listenersNote.hidden = true;
-  }
-  return result.status === STATUS.OK;
-}
-
 /* ---------- Derniers passages (home) ---------- */
 
 function loadPreviewRows() {
@@ -466,9 +450,7 @@ updatePlayButton();
 renderRoute();
 
 const livePoller = createPoller(refreshLive, REFRESH_MS.live);
-const listenersPoller = createPoller(refreshListeners, REFRESH_MS.listeners);
 livePoller.start();
-listenersPoller.start();
 
 setTimeout(() => {
   if (typeof window.requestIdleCallback === "function") {

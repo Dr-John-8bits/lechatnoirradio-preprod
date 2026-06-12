@@ -60,6 +60,6 @@ export function renderNews({ year, visibleCount = NEWS_PAGE_SIZE, focusedSlug = 
         ? '<div class="history-actions"><button class="action-button action-button--ghost" type="button" data-news-more>Afficher davantage</button></div>'
         : ""
     }
-    <p style="margin:20px 0 0;"><a class="ghost-link" href="feed.xml">s'abonner au flux RSS ↗</a></p>
+    <p style="margin:20px 0 0;"><a class="ghost-link" href="feed.xml" target="_blank" rel="noopener noreferrer">s'abonner au flux RSS ↗</a></p>
   `;
 }

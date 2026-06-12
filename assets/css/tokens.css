@@ -12,6 +12,7 @@
   --line-strong: #b8ac92;
   --accent: #d8491f;
   --accent-fill: #c23a13;
+  --accent-contrast: #f6efe2;
   --accent-ink: #a33715;
   --accent-soft: rgba(216, 73, 31, 0.09);
   --live: #d8491f;
@@ -39,7 +40,8 @@
     --line: #322c22;
     --line-strong: #4c4434;
     --accent: #e8602f;
-    --accent-fill: #e8602f;
+    --accent-fill: #b53711;
+    --accent-contrast: #f3ead9;
     --accent-ink: #f0825a;
     --accent-soft: rgba(232, 96, 47, 0.13);
     --live: #e8602f;

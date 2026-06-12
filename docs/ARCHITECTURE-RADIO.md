@@ -29,6 +29,15 @@ URLs centralisées dans `assets/js/config.js` — ne jamais les dupliquer ailleu
 9. Le redémarrage Liquidsoap quotidien (04:10) est traité comme une coupure réseau ordinaire.
 10. Onglet caché : les pollers sautent les fetchs mais restent programmés (`poller.js`).
 
+## Latence audio vs métadonnées (comportement normal)
+
+Les métadonnées (`nowplaying`/`current-show`) sont des JSON instantanés ; l'audio, lui, traverse
+des tampons (burst Icecast + buffer navigateur) : l'auditeur entend l'antenne avec quelques
+secondes à dizaines de secondes de retard. Au passage en DIRECT, il est donc **normal** de voir
+« direct — on air » s'afficher avant d'entendre le direct — le texte annonce, le son suit.
+Côté site : chaque mise en lecture ouvre une connexion neuve au flux (cache-buster dans
+`player.js`) pour ne jamais resservir un tampon périmé après pause ou rechargement.
+
 ## Vérification avant release
 
 Checklist complète : `docs/TEST-MATRIX.md`. Commandes endpoints : `docs/MAINTENANCE.md`.

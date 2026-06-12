@@ -92,6 +92,34 @@ Reste à confirmer sur appareils réels (affichage à l'écran verrouillé) : vo
 - À confirmer sur appareils réels : ajout à l'écran d'accueil iOS/Android, Ajouter au Dock macOS
   (lignes ajoutées à la checklist T1.4 ci-dessous).
 
+## Retours terrain T1.4 — validations du propriétaire (12/06/2026)
+
+- ✅ **Lecture iOS / iPadOS / Android + écran verrouillé : imagette du chat + titre affichés** —
+  l'acquis Media Session est confirmé sur appareils réels.
+- ✅ **Passage DIRECT via BUTT : pastille « direct — on air »** (lisibilité sombre corrigée
+  le jour même : fond vermillon profond + texte ivoire, 5,0:1).
+- ⚠️ **Radio coupée : la pastille ne change pas** — comportement attendu : Nginx continue de
+  servir les derniers JSON, le site n'a aucun signal fiable de mort de Liquidsoap.
+  Jugé non bloquant par le propriétaire ; piste serveur consignée au BACKLOG (heartbeat).
+- ✏️ **Correction de nommage** : le nom officiel de l'émission est
+  « Le Pseudo**cu**mentaire de l'espace » — c'était la grille qui portait la coquille
+  (« Pseudodocumentaire »), héritée de l'ancien site. Grille, page voix et alias corrigés ;
+  l'ancienne graphie reste tolérée en entrée de rapprochement.
+
+## Retours terrain T1.4 — première passe (12/06/2026, corrigés le jour même)
+
+| Retour | Diagnostic | Correctif |
+|---|---|---|
+| Passage BUTT : métadonnées en avance sur le son (1×) | Tampons Icecast/navigateur — normal, documenté | `ARCHITECTURE-RADIO.md` § latence |
+| Rechargement : son du morceau précédent | Le navigateur ressert son tampon | Connexion neuve à chaque lecture (cache-buster `player.js`) |
+| 23h40 : doublon d'émission au lieu du créneau | Liquidsoap émet « Pseudo**cu**mentaire » (sans « do ») → alias manquant | Alias ajouté + test unitaire |
+| Fin de journée : pas d'annonce de La Grande Nuit (minuit) | Le bloc « Aujourd'hui » s'arrêtait au dernier créneau du jour | Complément « demain — <jour> » avec les premiers créneaux du lendemain |
+| Liens flux direct / RSS coupent l'écoute | Ouverture même onglet | `target="_blank"` partout |
+| Compteur d'auditeurs dans le bandeau | Info backoffice (décision propriétaire) | Retiré de la home ; conservé sur `direct.html` |
+| Titres longs tronqués (derniers passages, historique) | `ellipsis` | Passage à la ligne (`overflow-wrap`) |
+| Page maintenance peu soignée | — | Refonte centrée, player accordé à la DA |
+| Studio : champ « ordre » collé à la colonne droite | gouttière trop étroite | Gouttière 40 px |
+
 ## Campagne appareils réels (T1.4 — bloquante, à faire par le propriétaire)
 
 | Test | iPhone Safari | iPad Safari | Android Chrome |

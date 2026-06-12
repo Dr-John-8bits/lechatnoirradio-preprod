@@ -23,6 +23,12 @@ Le chantier CSV/Range côté serveur est déjà spécifié à part : `SPEC-SERVE
 - **Partage natif des actualités** (`navigator.share` si disponible, sinon copie du permalien).
 - **`Timing-Allow-Origin` côté Nginx** (à ajouter à la spec serveur) : rendrait les poids des
   endpoints mesurables par les outils de perf — purement diagnostique.
+- **Heartbeat antenne (côté serveur)** : quand on coupe Liquidsoap, Nginx continue de servir
+  les derniers JSON → la pastille reste « à l'antenne » pour un visiteur qui n'écoute pas
+  (constaté en test le 12/06, jugé non bloquant). Signal fiable possible : le timer
+  `lcn-listeners-json` (30 s, indépendant de Liquidsoap) pourrait écrire un champ
+  `liquidsoapAlive` dans `listeners.json` ; le front basculerait alors la pastille en
+  « hors ligne » sur cette vérité plutôt que sur une heuristique fragile d'ancienneté.
 
 ## Confort / différenciation (à discuter)
 

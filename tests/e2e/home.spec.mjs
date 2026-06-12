@@ -17,19 +17,11 @@ test("la home affiche les blocs obligatoires sans overflow horizontal", async ({
   expect(errors).toEqual([]);
 });
 
-test("les auditeurs s'affichent avec sobriété (desktop)", async ({ page, isMobile }) => {
-  test.skip(isMobile, "le compteur est masqué sur mobile par design");
+test("le compteur d'auditeurs ne figure pas sur la home (info backoffice → direct.html)", async ({ page }) => {
   await mockRadio(page);
   await page.goto("/");
-  await expect(page.locator("#listenersNote")).toHaveText("3 à l'écoute");
-});
-
-test("zéro auditeur → le compteur se masque au lieu d'afficher 0", async ({ page, isMobile }) => {
-  test.skip(isMobile, "compteur desktop uniquement");
-  await mockRadio(page, { listeners: { current: 0 } });
-  await page.goto("/");
   await expect(page.locator("#currentShowText")).toHaveText("La table du chat");
-  await expect(page.locator("#listenersNote")).toBeHidden();
+  await expect(page.locator("#listenersNote")).toHaveCount(0);
 });
 
 test("les derniers passages viennent du CSV avec heures de Paris", async ({ page }) => {

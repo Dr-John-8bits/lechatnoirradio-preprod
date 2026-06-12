@@ -86,13 +86,13 @@
 }
 
 .onair-pill.is-direct {
-  color: var(--surface);
+  color: var(--accent-contrast);
   background: var(--accent-fill);
   border-color: var(--accent-fill);
 }
 
 .onair-pill.is-direct .onair-pill__dot {
-  background: var(--surface);
+  background: var(--accent-contrast);
 }
 
 @keyframes lcn-pulse {

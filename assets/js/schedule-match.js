@@ -8,8 +8,12 @@ const SHOW_NAME_ALIASES = {
   "l instinct mode": "l instinct mode",
   "autre nuit": "l autre nuit",
   "l autre nuit": "l autre nuit",
-  "pseudodocumentaire de l espace": "le pseudodocumentaire de l espace",
-  "le pseudodocumentaire de l espace": "le pseudodocumentaire de l espace",
+  // Le nom officiel de l'émission est « Le Pseudocumentaire de l'espace »
+  // (sans « do ») ; l'ancienne coquille reste tolérée en entrée.
+  "pseudocumentaire de l espace": "le pseudocumentaire de l espace",
+  "le pseudocumentaire de l espace": "le pseudocumentaire de l espace",
+  "pseudodocumentaire de l espace": "le pseudocumentaire de l espace",
+  "le pseudodocumentaire de l espace": "le pseudocumentaire de l espace",
   fragments: "matinee fragments",
   "matinee fragments": "matinee fragments",
   trajectoires: "matinee trajectoires",

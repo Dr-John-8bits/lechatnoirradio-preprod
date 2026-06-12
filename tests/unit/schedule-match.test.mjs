@@ -21,6 +21,12 @@ test("normalizeShowName : alias réels de production", () => {
   assert.equal(normalizeShowName("Émission Inédite"), "emission inedite");
 });
 
+test("normalizeShowName : « Pseudocumentaire » est le nom officiel ; l'ancienne coquille est tolérée", () => {
+  assert.equal(normalizeShowName("Le Pseudocumentaire de l'espace"), "le pseudocumentaire de l espace");
+  assert.equal(normalizeShowName("Pseudocumentaire de l'espace"), "le pseudocumentaire de l espace");
+  assert.equal(normalizeShowName("Le Pseudodocumentaire de l'espace"), "le pseudocumentaire de l espace");
+});
+
 test("parseScheduleTimeLabel : formats 18h00 / 18:00, libellés non horaires", () => {
   assert.equal(parseScheduleTimeLabel("18h00"), 18 * 60);
   assert.equal(parseScheduleTimeLabel("07:00"), 7 * 60);
