@@ -40,5 +40,5 @@ Côté site : chaque mise en lecture ouvre une connexion neuve au flux (cache-bu
 
 ## Vérification avant release
 
-Checklist complète : `docs/TEST-MATRIX.md`. Commandes endpoints : `docs/MAINTENANCE.md`.
+Checklist complète : `TEST-MATRIX.md` (doc de pilotage, hors dépôt). Commandes endpoints : `docs/MAINTENANCE.md`.
 Évolution serveur prévue (Range CORS) : `docs/SPEC-SERVEUR-HISTORIQUE.md`.

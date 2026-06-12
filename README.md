@@ -1,6 +1,6 @@
 # Le Chat Noir — futur site public (préproduction)
 
-Prototype du futur site, conforme au plan d'action v2 (`../LCN-plan-action-futur-site.md`).
+Prototype du futur site, conforme au plan d'action v2 (doc de pilotage tenue hors dépôt).
 
 ## Lancer en local
 
