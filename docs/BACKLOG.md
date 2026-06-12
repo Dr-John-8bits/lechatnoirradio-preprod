@@ -41,6 +41,41 @@ Le chantier CSV/Range côté serveur est déjà spécifié à part : `SPEC-SERVE
 - **View Transitions API** entre rubriques (fondu doux, progressive enhancement).
 - **Favicon SVG** avec variante sombre automatique.
 
+## Mutualisation des contenus éditoriaux (vision exprimée le 12/06/2026)
+
+Objectif : actualités, voix et grille gérés comme des **données**, modifiables par les outils
+maison sans toucher au code du site — et consommables un jour par une app dédiée sans
+dupliquer les contenus. Les actualités suivent déjà ce modèle ; généraliser en deux temps.
+
+### Étape 1 — un contrat de données unique (faisable dès maintenant, sans risque)
+
+```text
+assets/data/news.json      ✅ existe (généré depuis content/news/*.md)
+assets/data/voices.json    → à créer : PRODUCERS + SHOWS sortis de content-data.js
+assets/data/schedule.json  → à créer : SCHEDULE_TIMELINE_DAYS sorti de content-data.js
+                             = format de sortie de l'outil maison grille en cours de dev
+```
+
+- Le site continue de lire des modules JS **générés** depuis ces JSON (même chaîne que
+  news : `build-*.mjs`, sortie commitée, zéro fetch runtime, zéro risque GitHub Pages).
+- L'outil grille maison n'a alors qu'un seul livrable à produire : `schedule.json`
+  conforme au schéma (jours → slots `{time, title, desc, highlight?, badge?}` + alias
+  de rapprochement antenne). **Figer ce schéma ensemble = le vrai chantier.**
+- Une future app lit les trois JSON directement depuis le dépôt (raw GitHub) : contenus
+  saisis une fois, consommés partout. Publier = un commit unique de données.
+
+### Étape 2 — si l'app voit le jour : contenus servis par le serveur radio
+
+`stream.lechatnoirradio.fr` expose déjà des JSON publics avec CORS ; il peut héberger
+`/content/news.json`, `/content/voices.json`, `/content/schedule.json` (cache raisonnable,
+PAS no-store — ce sont des contenus, pas du temps réel). Site et app les **fetchent au
+chargement** avec la version commitée en secours intégré : mise à jour de contenu sans
+aucun commit, conformité au principe « le serveur publie, les clients consomment ».
+Nécessite une entrée dans `SPEC-SERVEUR-HISTORIQUE.md` (locations + cache) le moment venu.
+
+À ne pas faire : brancher l'étape 2 avant la bascule v1 (le CDC § 15.2 impose la prudence
+sur la migration des contenus en fetch runtime) ; multiplier les sources de vérité.
+
 ## Explicitement écartés
 
 - Analytics / tracking : contraire à la ligne du site (« le site ne trace pas les visiteurs »).
