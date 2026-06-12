@@ -5,6 +5,7 @@ import { searchWindow, getTodayYmd, getDisplayZoneLabel, formatLocalDate } from 
 import { createPoller } from "./poller.js";
 import { escapeHtml, setTextIfChanged } from "./ui-states.js";
 import { initScrollTop } from "./scroll-top.js";
+import { formatTrackMain } from "./renderers/render-home.js";
 
 const VISIBLE_STEP = 30;
 
@@ -59,12 +60,11 @@ function renderRows() {
   } else {
     refs.list.innerHTML = rows
       .map((row) => {
-        const main = [row.artist, row.title].filter(Boolean).join(" — ");
         const extra = [row.album, row.year].filter(Boolean).join(" · ");
         return `
           <li>
             <span class="track-time">${escapeHtml(row.localTime)}</span>
-            <span class="track-main">${escapeHtml(main || "Titre inconnu")}</span>
+            <span class="track-main">${formatTrackMain(row.artist, row.title)}</span>
             ${extra ? `<span class="track-extra">${escapeHtml(extra)}</span>` : ""}
           </li>
         `;

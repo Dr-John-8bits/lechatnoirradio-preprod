@@ -83,15 +83,24 @@ export function renderRecentTracks(rows) {
   return rows
     .slice(0, 8)
     .map((row) => {
-      const main = [row.artist, row.title].filter(Boolean).join(" — ");
       const extra = [row.album, row.year].filter(Boolean).join(" · ");
       return `
         <li>
           <span class="track-time">${escapeHtml(row.localTime || "--:--")}</span>
-          <span class="track-main">${escapeHtml(main || "Titre inconnu")}</span>
+          <span class="track-main">${formatTrackMain(row.artist, row.title)}</span>
           ${extra ? `<span class="track-extra">${escapeHtml(extra)}</span>` : ""}
         </li>
       `;
     })
     .join("");
+}
+
+// Artiste en gras, titre en graisse normale : la radio diffuse des titres très
+// narratifs, la distinction doit être immédiate.
+export function formatTrackMain(artist, title) {
+  const safeArtist = escapeHtml(artist || "");
+  const safeTitle = escapeHtml(title || "");
+  if (safeArtist && safeTitle) return `<strong class="track-artist">${safeArtist}</strong> — ${safeTitle}`;
+  if (safeArtist) return `<strong class="track-artist">${safeArtist}</strong>`;
+  return safeTitle || "Titre inconnu";
 }

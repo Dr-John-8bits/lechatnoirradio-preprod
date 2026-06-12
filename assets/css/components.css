@@ -73,6 +73,10 @@
   overflow-wrap: anywhere;
 }
 
+.track-artist {
+  font-weight: 650;
+}
+
 .track-list .track-extra {
   font-family: var(--font-mono);
   font-size: 11px;

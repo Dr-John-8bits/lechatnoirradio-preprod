@@ -3,6 +3,7 @@ import { fetchNowPlaying, fetchCurrentShow, fetchListeners, STATUS } from "./rad
 import { formatSinceLabel, formatLocalTime } from "./time.js";
 import { createPoller } from "./poller.js";
 import { setTextIfChanged } from "./ui-states.js";
+import { formatTrackMain } from "./renderers/render-home.js";
 
 const refs = {
   pill: document.getElementById("directPill"),
@@ -31,7 +32,11 @@ async function refreshMeta() {
 
   if (trackResult.status === STATUS.OK && (trackResult.data.title || trackResult.data.artist)) {
     const t = trackResult.data;
-    setTextIfChanged(refs.track, [t.artist, t.title].filter(Boolean).join(" — "));
+    const mainHtml = formatTrackMain(t.artist, t.title);
+    if (refs.track.dataset.rendered !== mainHtml) {
+      refs.track.dataset.rendered = mainHtml;
+      refs.track.innerHTML = mainHtml;
+    }
     const meta = [t.album, t.year].filter(Boolean).join(" · ");
     setTextIfChanged(refs.trackMeta, meta || "—");
   }
