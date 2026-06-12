@@ -87,8 +87,8 @@
 
 .onair-pill.is-direct {
   color: var(--accent-contrast);
-  background: var(--accent-fill);
-  border-color: var(--accent-fill);
+  background: var(--direct);
+  border-color: var(--direct);
 }
 
 .onair-pill.is-direct .onair-pill__dot {
