@@ -1,6 +1,7 @@
-# Le Chat Noir — futur site public (préproduction)
+# Le Chat Noir — site public
 
-Prototype du futur site, conforme au plan d'action v2 (doc de pilotage tenue hors dépôt).
+Site de la webradio Le Chat Noir (laboratoire radiophonique indépendant). Statique,
+servi par GitHub Pages. Doc de pilotage tenue hors dépôt.
 
 ## Lancer en local
 

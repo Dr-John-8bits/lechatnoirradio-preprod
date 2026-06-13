@@ -1,9 +1,9 @@
 {
-  "name": "lcn-website-preprod",
-  "version": "0.1.0",
+  "name": "lcn-website",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Préproduction du futur site public Le Chat Noir — laboratoire radiophonique indépendant",
+  "description": "Site public Le Chat Noir — webradio, laboratoire radiophonique indépendant",
   "scripts": {
     "test": "node --test tests/unit/*.test.mjs",
     "test:e2e": "playwright test",
