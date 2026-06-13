@@ -1,32 +1,6 @@
 import { DISPLAY_TIME_ZONE } from "./config.js";
 import { getDisplayDateParts, getDayIdForDate, getCurrentLocalMinutes } from "./time.js";
-
-const SHOW_NAME_ALIASES = {
-  blocsonic: "blocsonic",
-  "blocsonic mixtapes": "blocsonic",
-  "instinct mode": "l instinct mode",
-  "l instinct mode": "l instinct mode",
-  "autre nuit": "l autre nuit",
-  "l autre nuit": "l autre nuit",
-  // Le nom officiel de l'émission est « Le Pseudocumentaire de l'espace »
-  // (sans « do ») ; l'ancienne coquille reste tolérée en entrée.
-  "pseudocumentaire de l espace": "le pseudocumentaire de l espace",
-  "le pseudocumentaire de l espace": "le pseudocumentaire de l espace",
-  "pseudodocumentaire de l espace": "le pseudocumentaire de l espace",
-  "le pseudodocumentaire de l espace": "le pseudocumentaire de l espace",
-  fragments: "matinee fragments",
-  "matinee fragments": "matinee fragments",
-  trajectoires: "matinee trajectoires",
-  "matinee trajectoires": "matinee trajectoires",
-  immersion: "matinee immersion",
-  "matinee immersion": "matinee immersion",
-  traversees: "matinee traversees",
-  "matinee traversees": "matinee traversees",
-  "transmissions du dr john": "les transmissions du dr john",
-  "les transmissions du dr john": "les transmissions du dr john",
-  "ondes du chat noir": "les ondes du chat noir",
-  "les ondes du chat noir": "les ondes du chat noir",
-};
+import { SCHEDULE_ALIAS_PAIRS } from "./schedule-data.js";
 
 function asString(value) {
   return typeof value === "string" ? value.trim() : "";
@@ -42,6 +16,16 @@ export function normalizeComparableText(value) {
     .replace(/\s+/g, " ")
     .trim();
 }
+
+// Variantes de noms antenne → titre public. Les paires brutes viennent de
+// schedule.json (export du Concepteur-Grille, dont la coquille historique
+// « Pseudodocumentaire ») ; la normalisation reste faite ici, en un seul endroit.
+const SHOW_NAME_ALIASES = {};
+SCHEDULE_ALIAS_PAIRS.forEach(([variant, canonical]) => {
+  const key = normalizeComparableText(variant);
+  const value = normalizeComparableText(canonical);
+  if (key && value) SHOW_NAME_ALIASES[key] = value;
+});
 
 export function normalizeShowName(value) {
   const normalized = normalizeComparableText(value);

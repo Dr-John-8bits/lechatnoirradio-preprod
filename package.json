@@ -9,6 +9,8 @@
     "test:e2e": "playwright test",
     "serve": "node tools/dev-server.mjs",
     "build:news": "node scripts/build-news.mjs",
+    "build:schedule": "node scripts/build-schedule.mjs",
+    "build:voices": "node scripts/build-voices.mjs",
     "news:new": "node scripts/create-news.mjs"
   },
   "devDependencies": {
