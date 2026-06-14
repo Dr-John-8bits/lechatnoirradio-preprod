@@ -155,9 +155,19 @@ export function getCurrentShowDescription(currentShow) {
   return "Bloc réellement diffusé à l'antenne.";
 }
 
+function formatStartHour(since) {
+  const seconds = Number(since);
+  if (!Number.isFinite(seconds) || seconds <= 0) return "";
+  const parts = getDisplayDateParts(seconds * 1000);
+  return parts ? `${parts.hour}h${parts.minute}` : "";
+}
+
 export function buildSyntheticCurrentShowSlot(currentShow) {
+  // Heure de début du show (depuis `since`), comme toutes les lignes de grille —
+  // évite un libellé long ("Maintenant") qui débordait la colonne d'heure étroite.
+  const startHour = formatStartHour(currentShow && currentShow.since);
   return {
-    time: currentShow && currentShow.isLive ? "Maintenant" : "À l'antenne",
+    time: startHour || "·",
     title: asString(currentShow && currentShow.show) || (currentShow && currentShow.isLive ? "DIRECT" : "Show en cours"),
     desc: getCurrentShowDescription(currentShow),
     highlight: true,

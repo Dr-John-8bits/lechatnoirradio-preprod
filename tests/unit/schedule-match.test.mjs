@@ -68,10 +68,14 @@ test("getHomeTodayState : show réel trouvé → fenêtre de grille à partir du
   assert.equal(rows[0].title, "blocSonic");
 });
 
-test("slot synthétique : DIRECT", () => {
-  const slot = buildSyntheticCurrentShowSlot({ show: "", isLive: true, kind: "live" });
+test("slot synthétique : DIRECT — heure de début (pas un mot qui déborde la colonne)", () => {
+  const since = Math.floor(Date.parse("2026-06-14T18:30:00Z") / 1000); // 20h30 à Paris (été)
+  const slot = buildSyntheticCurrentShowSlot({ show: "", isLive: true, kind: "live", since });
   assert.equal(slot.title, "DIRECT");
-  assert.equal(slot.time, "Maintenant");
+  assert.equal(slot.time, "20h30");
+  // sans `since` : repli court, jamais le mot long « Maintenant »
+  const noSince = buildSyntheticCurrentShowSlot({ show: "X", isLive: true, since: 0 });
+  assert.equal(noSince.time, "·");
 });
 
 test("doublons dans la journée : désambiguïsation par heure de début (since)", () => {

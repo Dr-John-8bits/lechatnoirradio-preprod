@@ -111,6 +111,10 @@
   font-size: 12px;
   color: var(--muted);
   padding-top: 2px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .slot-list .slot-title {
