@@ -349,6 +349,12 @@
   padding: 32px 20px 48px;
 }
 
+/* La vue de l'accueil est remplie par le JS après chargement : on lui réserve un écran
+   pour que le pied de page ne saute pas (décalage de mise en page, CLS). */
+#pageView {
+  min-height: 100svh;
+}
+
 /* Le barbelé de la photo, en séparateur sous le bandeau (décor pur, sans balisage). */
 .top-shell + .site-main::before {
   content: "";
