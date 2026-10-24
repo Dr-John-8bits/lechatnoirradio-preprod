@@ -505,14 +505,39 @@
   margin-top: 20px;
 }
 
+/* Actualités : la chronologie sur la même ligne d'étoiles que la grille ;
+   l'actualité la plus récente de l'année brille. */
 .news-item {
-  padding: 22px 0;
-  border-bottom: 1px solid var(--line);
-  max-width: var(--reading-width);
+  position: relative;
+  padding: 18px 16px 20px 30px;
+  max-width: calc(var(--reading-width) + 46px);
 }
 
-.news-item:last-of-type {
-  border-bottom: none;
+.news-item::before {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--line-strong);
+}
+
+.news-item::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 24px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 1px solid var(--accent);
+}
+
+.news-item:first-of-type::after {
+  background: var(--accent);
+  box-shadow: 0 0 10px 3px var(--glow);
 }
 
 .news-item__title {
@@ -542,11 +567,7 @@
 
 .news-item.is-focused {
   background: var(--accent-soft);
-  border-radius: var(--radius);
-  padding-left: 14px;
-  padding-right: 14px;
-  margin-left: -14px;
-  margin-right: -14px;
+  border-radius: var(--radius-lg);
 }
 
 .cards-grid {
@@ -564,17 +585,53 @@
   flex-direction: column;
 }
 
+/* Visuels d'émission : un léger voile de nuit en bas unifie des images très différentes.
+   Cadrage par le haut, là où les visuels portent leur titre. */
+.card__media {
+  position: relative;
+  background: var(--surface-raised);
+}
+
+.card__media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--media-veil);
+  pointer-events: none;
+}
+
+.card__media:has(.card__image--contain)::after {
+  display: none;
+}
+
 .card__image {
   width: 100%;
   aspect-ratio: 3 / 2;
   object-fit: cover;
-  background: var(--surface-raised);
+  object-position: center top;
 }
 
 .card__image--contain {
   object-fit: contain;
+  object-position: center;
   padding: 12px;
   box-sizing: border-box;
+}
+
+/* Voix : les personnes à gauche, les émissions à droite sur grand écran. */
+.voices-layout {
+  display: grid;
+  gap: 0 48px;
+}
+
+@media (min-width: 960px) {
+  .voices-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
+  }
+}
+
+.voices-layout > .page-section {
+  min-width: 0;
 }
 
 .card__body {
@@ -616,6 +673,7 @@
   border-radius: 50%;
   object-fit: cover;
   flex: 0 0 auto;
+  box-shadow: 0 0 0 2px var(--bg), 0 0 0 3px var(--line-strong);
 }
 
 .voice-row__name {
@@ -649,11 +707,84 @@
   padding: 4px 12px;
 }
 
+/* À propos : la première phrase du manifeste sert d'accroche. */
+.manifesto {
+  margin-top: 16px;
+}
+
+.manifesto p {
+  font-size: 15px;
+  color: var(--ink-soft);
+  max-width: var(--reading-width);
+  margin: 0 0 14px;
+}
+
+.manifesto .manifesto__lead {
+  font-size: 21px;
+  font-weight: 300;
+  line-height: 1.45;
+  letter-spacing: -0.005em;
+  color: var(--ink);
+}
+
+.about-section {
+  margin-top: 44px;
+}
+
+.about-text {
+  font-size: 14.5px;
+  color: var(--ink-soft);
+  max-width: var(--reading-width);
+  margin: 0 0 12px;
+}
+
+.about-text--tight {
+  margin-bottom: 6px;
+}
+
+.cards-grid--panels {
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  margin-top: 18px;
+}
+
+.cards-grid--contact {
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  margin-top: 18px;
+}
+
+.mentions p {
+  font-size: 13.5px;
+  color: var(--muted);
+  max-width: var(--reading-width);
+  margin: 0 0 10px;
+}
+
+.mentions strong {
+  color: var(--ink-soft);
+}
+
 .contrib-card {
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
   background: var(--surface);
   padding: 18px 20px;
+}
+
+.contrib-card .card__title {
+  margin: 0 0 8px;
+}
+
+.contrib-card .kicker + .card__title {
+  margin-top: 6px;
+}
+
+.contrib-card .card__text {
+  font-size: 13.5px;
+}
+
+.contrib-card .action-button {
+  display: inline-block;
+  text-decoration: none;
 }
 
 .contrib-card ul {
@@ -711,6 +842,25 @@
   .track-list li {
     grid-template-columns: 46px minmax(0, 1fr);
     column-gap: 12px;
+  }
+  /* Voix : chaque émission en ligne, visuel à gauche, texte complet à droite. */
+  .voices-layout .cards-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .voices-layout .card {
+    flex-direction: row;
+  }
+  .voices-layout .card__media {
+    flex: 0 0 112px;
+  }
+  .voices-layout .card__image {
+    aspect-ratio: auto;
+    height: 100%;
+    min-height: 112px;
+  }
+  .voices-layout .card__body {
+    padding: 12px 14px;
   }
   /* Les 7 jours de la grille se partagent une seule ligne. */
   .day-tabs:has(> [data-day]) {
