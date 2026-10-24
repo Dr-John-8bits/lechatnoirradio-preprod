@@ -43,6 +43,11 @@
   --halo: rgba(150, 215, 255, 0.5);
   --halo-direct: rgba(255, 122, 89, 0.5);
 
+  /* Ciel de la journée (grille) : nuit → aube → jour → crépuscule → nuit */
+  --day-sky: linear-gradient(90deg, #08122b 0%, #0f2048 22%, #4f86c4 32%, #a9d4f2 50%, #8fbbe6 66%, #3c5f9a 80%, #14214a 90%, #08122b 100%);
+  --day-sky-tick: rgba(241, 246, 255, 0.4);
+  --day-sky-sun: rgba(238, 248, 255, 0.75);
+
   --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
 
