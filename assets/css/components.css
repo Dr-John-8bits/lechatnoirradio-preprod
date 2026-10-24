@@ -1,65 +1,81 @@
 .page-section {
-  margin: 0 0 40px;
+  margin: 0 0 44px;
 }
 
 .page-section__head {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 12px;
-  border-bottom: 1px solid var(--line);
-  padding-bottom: 10px;
-  margin-bottom: 18px;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin-bottom: 14px;
 }
 
 .page-section__title {
-  font-size: 15px;
-  font-weight: 600;
-  letter-spacing: 0.01em;
+  font-size: 24px;
+  font-weight: 300;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
   margin: 0;
 }
 
 .page-title {
-  font-size: 26px;
-  font-weight: 650;
-  letter-spacing: -0.015em;
-  line-height: 1.2;
-  margin: 0 0 6px;
+  font-size: 38px;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin: 0 0 10px;
+  text-wrap: balance;
 }
 
 .page-lead {
   font-size: 15.5px;
   color: var(--ink-soft);
-  max-width: 56ch;
+  max-width: var(--reading-width);
   margin: 0 0 32px;
 }
 
+.section-more {
+  margin: 14px 0 0;
+}
+
+/* Accueil : programme du jour et derniers passages côte à côte sur grand écran. */
+.home-grid {
+  display: grid;
+  gap: 0 56px;
+}
+
+@media (min-width: 900px) {
+  .home-grid {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  }
+}
+
+.home-grid > .page-section {
+  min-width: 0;
+}
+
+/* Morceaux : heure, puis artiste — titre, l'album et l'année en dessous. */
 .track-list {
   list-style: none;
   margin: 0;
   padding: 0;
-  display: flex;
-  flex-direction: column;
 }
 
 .track-list li {
-  display: flex;
-  gap: 16px;
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  column-gap: 14px;
   align-items: baseline;
-  padding: 9px 0;
-  border-bottom: 1px solid var(--line);
-  min-width: 0;
-}
-
-.track-list li:last-child {
-  border-bottom: none;
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
 }
 
 .track-list .track-time {
   font-family: var(--font-mono);
   font-size: 12px;
   color: var(--muted);
-  flex: 0 0 auto;
+  font-variant-numeric: tabular-nums;
 }
 
 .track-list li:first-child .track-time {
@@ -67,9 +83,8 @@
 }
 
 .track-list .track-main {
-  font-size: 14.5px;
+  font-size: 15px;
   min-width: 0;
-  flex: 1;
   overflow-wrap: anywhere;
 }
 
@@ -78,16 +93,15 @@
 }
 
 .track-list .track-extra {
+  grid-column: 2;
   font-family: var(--font-mono);
   font-size: 11px;
   color: var(--muted);
-  flex: 0 1 auto;
-  margin-left: auto;
-  text-align: right;
+  margin-top: 2px;
   overflow-wrap: anywhere;
-  max-width: 45%;
 }
 
+/* Créneaux : une ligne de nuit ponctuée d'étoiles ; celle du show à l'antenne brille. */
 .slot-list {
   list-style: none;
   margin: 0;
@@ -95,15 +109,33 @@
 }
 
 .slot-list li {
+  position: relative;
   display: grid;
-  grid-template-columns: 64px 1fr;
+  grid-template-columns: 60px minmax(0, 1fr);
   gap: 14px;
-  padding: 11px 0;
-  border-bottom: 1px solid var(--line);
+  padding: 11px 12px 11px 24px;
 }
 
-.slot-list li:last-child {
-  border-bottom: none;
+.slot-list li::before {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--line-strong);
+}
+
+.slot-list li::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 18px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 1px solid var(--line-strong);
 }
 
 .slot-list .slot-time {
@@ -115,28 +147,31 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 
 .slot-list .slot-title {
-  font-size: 14.5px;
+  font-size: 15px;
   font-weight: 600;
   margin: 0;
 }
 
 .slot-list .slot-desc {
-  font-size: 13px;
+  font-size: 13.5px;
   color: var(--muted);
   margin: 2px 0 0;
+  max-width: var(--reading-width);
 }
 
 .slot-list li.is-current {
   background: var(--accent-soft);
-  border-radius: var(--radius);
-  padding-left: 10px;
-  padding-right: 10px;
-  margin-left: -10px;
-  margin-right: -10px;
-  border-bottom-color: transparent;
+  border-radius: var(--radius-lg);
+}
+
+.slot-list li.is-current::after {
+  background: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 0 10px 3px var(--glow);
 }
 
 .slot-list li.is-current .slot-time {
@@ -148,8 +183,11 @@
 }
 
 .slot-list li.slot-sep {
-  border-bottom: none;
-  padding: 16px 0 2px;
+  padding: 16px 12px 4px 24px;
+}
+
+.slot-list li.slot-sep::after {
+  display: none;
 }
 
 .slot-list li.slot-sep .kicker {
@@ -159,14 +197,15 @@
 .slot-badge {
   display: inline-block;
   font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.06em;
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
   color: var(--accent-ink);
   border: 1px solid var(--accent);
-  border-radius: 3px;
-  padding: 1px 6px;
+  border-radius: 999px;
+  padding: 1px 8px;
   margin-left: 8px;
   vertical-align: 2px;
+  white-space: nowrap;
 }
 
 .slot-badge--onair {
@@ -227,13 +266,13 @@
 
 .day-tabs button {
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 12.5px;
   letter-spacing: 0.03em;
   background: transparent;
   border: 1px solid var(--line-strong);
   border-radius: 999px;
-  color: var(--muted);
-  padding: 5px 13px;
+  color: var(--ink-soft);
+  padding: 7px 14px;
   cursor: pointer;
 }
 
@@ -284,19 +323,19 @@
   background: var(--surface-raised);
   border: 1px solid var(--line-strong);
   border-radius: var(--radius);
-  padding: 8px 10px;
+  padding: 9px 11px;
   min-width: 150px;
 }
 
 .action-button {
-  font-family: var(--font-mono);
-  font-size: 13px;
-  letter-spacing: 0.03em;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 600;
   background: var(--ink);
   color: var(--surface);
   border: 1px solid var(--ink);
-  border-radius: var(--radius);
-  padding: 9px 18px;
+  border-radius: 999px;
+  padding: 10px 20px;
   cursor: pointer;
 }
 
@@ -334,6 +373,7 @@
 .news-item {
   padding: 22px 0;
   border-bottom: 1px solid var(--line);
+  max-width: var(--reading-width);
 }
 
 .news-item:last-of-type {
@@ -341,8 +381,10 @@
 }
 
 .news-item__title {
-  font-size: 18px;
-  font-weight: 650;
+  font-size: 21px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
   margin: 4px 0 8px;
 }
 
@@ -451,6 +493,7 @@
   font-size: 13.5px;
   color: var(--muted);
   margin: 2px 0 0;
+  max-width: var(--reading-width);
 }
 
 .chips {
@@ -524,10 +567,19 @@
 }
 
 @media (max-width: 560px) {
-  .track-list .track-extra {
-    display: none;
+  .page-title {
+    font-size: 29px;
+  }
+  .page-section__title {
+    font-size: 21px;
+  }
+  .track-list li {
+    grid-template-columns: 46px minmax(0, 1fr);
+    column-gap: 12px;
   }
   .slot-list li {
-    grid-template-columns: 52px 1fr;
+    grid-template-columns: 50px minmax(0, 1fr);
+    gap: 12px;
+    padding-right: 8px;
   }
 }
