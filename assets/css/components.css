@@ -422,6 +422,97 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Pages « ciel » (maintenance, 404) : toute la page est la photo du logo sous un voile
+   de nuit, dans les deux thèmes. Comme pour le bandeau, les tokens sont redéfinis ici. */
+.sky-page {
+  --ink: var(--sky-ink);
+  --ink-soft: var(--sky-soft);
+  --muted: var(--sky-soft);
+  --accent: var(--sky-accent);
+  --accent-ink: var(--sky-accent);
+  --accent-fill: var(--sky-accent);
+  --accent-contrast: var(--sky-on);
+  --live: var(--sky-accent);
+  --direct: var(--sky-direct);
+  --surface: var(--sky);
+  --line: var(--sky-line);
+  --line-strong: var(--sky-line);
+
+  color-scheme: dark;
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: max(40px, var(--safe-area-top)) 20px 40px;
+  box-sizing: border-box;
+  text-align: center;
+  color: var(--ink);
+  background-color: var(--sky);
+  background-image: var(--sky-veil-page), url("../media/brand/sky-1064.webp");
+  background-size: cover;
+  background-position: center 30%;
+}
+
+.sky-page__inner {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  max-width: 46ch;
+}
+
+.sky-page__inner > * {
+  margin: 0;
+}
+
+.sky-page__logo {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 8px var(--sky-ring), 0 0 60px 18px var(--halo);
+  margin-bottom: 8px;
+}
+
+.sky-page .onair-pill {
+  background: var(--sky-pill);
+}
+
+.sky-page__lead {
+  font-size: 15.5px;
+  color: var(--ink-soft);
+}
+
+.maintenance-card {
+  width: 100%;
+  max-width: 440px;
+  margin-top: 10px;
+  padding: 22px 24px;
+  box-sizing: border-box;
+  text-align: left;
+  border-radius: var(--radius-lg);
+  background: var(--sky-card);
+  border: 1px solid var(--sky-line);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  display: grid;
+  gap: 4px;
+}
+
+.maintenance-card p {
+  margin: 0;
+}
+
+.maintenance-card__show {
+  margin-top: 4px;
+  font-size: 22px;
+  font-weight: 300;
+  letter-spacing: -0.01em;
+}
+
+.maintenance-audio {
+  width: 100%;
+  margin-top: 14px;
+  accent-color: var(--accent);
+}
+
 .placeholder-card {
   border: 1px dashed var(--line-strong);
   border-radius: var(--radius-lg);
@@ -472,6 +563,11 @@
   border-radius: 999px;
   padding: 10px 20px;
   cursor: pointer;
+}
+
+a.action-button {
+  display: inline-block;
+  text-decoration: none;
 }
 
 .action-button:hover {
@@ -782,10 +878,6 @@
   font-size: 13.5px;
 }
 
-.contrib-card .action-button {
-  display: inline-block;
-  text-decoration: none;
-}
 
 .contrib-card ul {
   margin: 10px 0 14px;
@@ -824,6 +916,11 @@
   padding: 8px 10px;
   width: 100%;
   box-sizing: border-box;
+}
+
+/* Le studio fixe lui-même la largeur de ses champs (ex. « ordre » à 110 px). */
+.studio-grid .field input {
+  min-width: 0;
 }
 
 @media (max-width: 700px) {

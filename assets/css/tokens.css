@@ -40,6 +40,9 @@
   --sky-pill: rgba(6, 14, 34, 0.55);
   --sky-ring: rgba(238, 248, 255, 0.12);
   --sky-soft-fill: rgba(154, 214, 255, 0.14);
+  /* Pages entièrement « ciel » (maintenance, 404) : voile plus dense, le texte y couvre la photo. */
+  --sky-veil-page: linear-gradient(180deg, rgba(6, 14, 34, 0.8) 0%, rgba(6, 14, 34, 0.86) 50%, rgba(6, 14, 34, 0.96) 100%);
+  --sky-card: rgba(8, 18, 43, 0.74);
   --halo: rgba(150, 215, 255, 0.5);
   --halo-direct: rgba(255, 122, 89, 0.5);
 
