@@ -49,6 +49,11 @@
   padding: 16px 20px 0;
 }
 
+/* En-tête court des pages ouvertes à part (historique, direct, studio) : pas de lecteur. */
+.top-shell--thin .top-shell__inner {
+  padding-bottom: 14px;
+}
+
 .shell-head {
   display: flex;
   align-items: flex-start;

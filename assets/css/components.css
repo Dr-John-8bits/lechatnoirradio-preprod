@@ -39,6 +39,97 @@
   margin: 14px 0 0;
 }
 
+.page-kicker {
+  display: block;
+  margin: 0 0 6px;
+}
+
+/* Historique : la liste ne montre qu'une journée ; son titre (« Diffusions — aujourd'hui »)
+   tient lieu de séparateur de jour. */
+.history-head {
+  margin: 28px 0 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--line-strong);
+}
+
+.history-head .page-section__title {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-transform: lowercase;
+  color: var(--accent-ink);
+}
+
+.history-head + .track-list li:first-child {
+  border-top: 0;
+}
+
+/* Page direct : l'antenne, le titre en cours et l'audience en trois cartes. */
+.status-grid {
+  display: grid;
+  gap: 14px;
+  margin-top: 24px;
+}
+
+@media (min-width: 760px) {
+  .status-grid {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+
+.status-card {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 18px 20px;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+
+.status-card__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+}
+
+.status-card__title {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: lowercase;
+  color: var(--muted);
+}
+
+.status-card__show {
+  margin: 4px 0 0;
+  font-size: 30px;
+  font-weight: 300;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.status-card__value {
+  margin: 4px 0 0;
+  font-size: 16px;
+  overflow-wrap: anywhere;
+}
+
+.status-card__value .mono {
+  font-size: 15px;
+}
+
+.status-card .status-line {
+  margin: 0;
+}
+
 /* Accueil : programme du jour et derniers passages côte à côte sur grand écran. */
 .home-grid {
   display: grid;
