@@ -14,6 +14,11 @@ const refs = {
   copy: document.getElementById("copyMarkdownButton"),
   download: document.getElementById("downloadMarkdownButton"),
   recent: document.getElementById("newsStudioRecent"),
+  lead_: document.getElementById("studioLead"),
+  localActions: document.getElementById("studioLocalActions"),
+  save: document.getElementById("saveNewsButton"),
+  stop: document.getElementById("stopStudioButton"),
+  localStatus: document.getElementById("studioLocalStatus"),
 };
 
 function slugify(value) {
@@ -112,7 +117,113 @@ async function loadRecentItems() {
   }
 }
 
+// --- Mode studio local ------------------------------------------------------
+// Quand la page est servie par tools/dev-server.mjs, une petite API locale
+// permet d'enregistrer le billet dans content/news, de régénérer les
+// actualités et d'arrêter le serveur. Ailleurs (site publié, file://), ces
+// boutons restent masqués.
+
+const SAVE_LABEL = "Enregistrer et générer";
+let pendingOverwrite = null;
+
+function setLocalStatus(message, isError = false) {
+  refs.localStatus.textContent = message;
+  refs.localStatus.classList.toggle("is-error", isError);
+}
+
+function resetSaveButton() {
+  pendingOverwrite = null;
+  refs.save.textContent = SAVE_LABEL;
+}
+
+async function postStudio(route, payload) {
+  const response = await fetch(`api/studio/${route}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload || {}),
+  });
+  const data = await response.json().catch(() => ({}));
+  return { status: response.status, data };
+}
+
+async function saveNews() {
+  const { fileName, markdown } = buildMarkdown();
+  const title = refs.title.value.trim();
+  const lead = refs.lead.value.trim();
+  if (!title || !lead) {
+    setLocalStatus("Il faut au moins un titre et un chapeau avant d’enregistrer.", true);
+    return;
+  }
+
+  const overwrite = pendingOverwrite === fileName;
+  refs.save.disabled = true;
+  setLocalStatus("Enregistrement et génération en cours…");
+
+  try {
+    const { status, data } = await postStudio("news", { fileName, markdown, overwrite });
+
+    if (status === 409) {
+      pendingOverwrite = fileName;
+      refs.save.textContent = "Remplacer le fichier existant";
+      setLocalStatus(`${data.file} existe déjà. Cliquez à nouveau pour le remplacer.`, true);
+      return;
+    }
+
+    resetSaveButton();
+    if (status === 200) {
+      const verb = data.replaced ? "remplacé" : "enregistré";
+      setLocalStatus(`${data.file} ${verb}. ${data.output} Il reste à committer et pousser.`);
+      loadRecentItems();
+      return;
+    }
+    if (data.build === "failed") {
+      setLocalStatus(`${data.file} enregistré, mais la génération a échoué : ${data.output}`, true);
+      return;
+    }
+    setLocalStatus(data.error || `Erreur ${status}.`, true);
+  } catch {
+    resetSaveButton();
+    setLocalStatus("Le serveur local ne répond plus.", true);
+  } finally {
+    refs.save.disabled = false;
+  }
+}
+
+async function stopStudio() {
+  refs.stop.disabled = true;
+  refs.save.disabled = true;
+  try {
+    await postStudio("shutdown");
+  } catch {
+    // Le serveur a pu s'arrêter avant de répondre : c'est le résultat voulu.
+  }
+  setLocalStatus("Studio arrêté. Vous pouvez fermer cet onglet.");
+  refs.lead_.textContent = "Le studio est arrêté. Relancez-le pour rédiger un nouveau billet.";
+}
+
+async function detectLocalStudio() {
+  try {
+    const response = await fetch("api/studio/status", { cache: "no-store" });
+    if (!response.ok) return;
+    const data = await response.json();
+    if (!data.studio) return;
+  } catch {
+    return;
+  }
+
+  refs.localActions.hidden = false;
+  refs.lead_.innerHTML =
+    "Rédigez ici, puis cliquez sur <strong>Enregistrer et générer</strong> : le billet rejoint " +
+    '<span class="mono">content/news/</span> et les actualités sont régénérées. Il ne reste qu’à committer.';
+  refs.save.addEventListener("click", saveNews);
+  refs.stop.addEventListener("click", stopStudio);
+}
+
+refs.form.addEventListener("input", () => {
+  if (pendingOverwrite) resetSaveButton();
+});
 refs.form.addEventListener("input", updatePreview);
 if (!refs.date.value) refs.date.value = getTodayYmd();
 updatePreview();
 loadRecentItems();
+detectLocalStudio();

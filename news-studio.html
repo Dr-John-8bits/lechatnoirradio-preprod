@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>Studio Actualités — Le Chat Noir</title>
     <meta name="description" content="Outil de rédaction des actualités du Chat Noir : génère le Markdown à committer." />
-    <meta name="theme-color" content="#08122b" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#08122b" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#f4eee0" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#14110d" media="(prefers-color-scheme: dark)" />
     <meta name="robots" content="noindex" />
     <link rel="icon" type="image/png" href="favicon.png" />
     <link rel="stylesheet" href="assets/css/tokens.css" />
@@ -16,8 +16,8 @@
     <script type="module" src="assets/js/page-news-studio.js"></script>
   </head>
   <body>
-    <header class="top-shell top-shell--thin">
-      <div class="top-shell__inner">
+    <header class="top-shell">
+      <div class="top-shell__inner" style="padding-bottom: 14px;">
         <div class="shell-head">
           <a class="brand" href="index.html" aria-label="Le Chat Noir — retour à l'accueil">
             <img class="brand__logo" src="assets/media/brand/logo-320.jpg" alt="" width="40" height="40" />
@@ -34,7 +34,7 @@
     <main class="site-main" style="max-width: 920px;">
       <p class="kicker kicker--accent" style="margin: 0 0 6px;">// outil du mainteneur</p>
       <h1 class="page-title">Studio Actualités</h1>
-      <p class="page-lead">
+      <p class="page-lead" id="studioLead">
         Rédigez ici, puis enregistrez le fichier Markdown dans <span class="mono">content/news/</span> et lancez
         <span class="mono">npm run build:news</span>.
       </p>
@@ -69,6 +69,13 @@
           <p class="status-line" style="margin: 0 0 4px;">slug : <span class="mono" id="newsSlugPreview">—</span></p>
           <p class="status-line" style="margin: 0 0 10px;">fichier : <span class="mono" id="newsFilePreview">—</span></p>
           <textarea id="newsMarkdownOutput" rows="16" readonly aria-label="Markdown généré"></textarea>
+          <div id="studioLocalActions" hidden>
+            <div class="history-actions">
+              <button class="action-button action-button--accent" id="saveNewsButton" type="button">Enregistrer et générer</button>
+              <button class="action-button action-button--ghost" id="stopStudioButton" type="button">Arrêter le studio</button>
+            </div>
+            <p class="status-line" id="studioLocalStatus" role="status" aria-live="polite" style="margin: 10px 0 0;"></p>
+          </div>
           <div class="history-actions">
             <button class="action-button" id="copyMarkdownButton" type="button">Copier le Markdown</button>
             <button class="action-button action-button--ghost" id="downloadMarkdownButton" type="button">Télécharger le fichier</button>

@@ -393,6 +393,23 @@
   stroke: var(--muted);
 }
 
+.site-footer__links {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* Sous 800 px, le pied de page touche le bord droit : on lui laisse la hauteur du
+   bouton flottant « retour en haut » (18 px + 42 px) pour que ses liens restent cliquables. */
+@media (max-width: 800px) {
+  .site-footer {
+    padding-bottom: 76px;
+  }
+}
+
 @media (max-width: 560px) {
   .top-shell {
     --shell-collapse: 58px;
@@ -418,22 +435,24 @@
     height: 52px;
     box-shadow: 0 0 0 6px var(--sky-ring), 0 0 30px 8px var(--halo);
   }
-  /* Menu sur une seule ligne : il tient sur la plupart des téléphones et défile
-     latéralement sur les plus étroits, au lieu de doubler la hauteur collée. */
+  /* Menu sur une seule ligne (7 rubriques) : il tient en entier dès 412 px de large ;
+     plus étroit, il défile latéralement et un fondu à droite l'indique. */
   .main-nav {
     flex-wrap: nowrap;
     justify-content: space-between;
-    gap: 0 12px;
+    gap: 0 7px;
     margin: 12px -4px 0;
-    padding: 0 4px 4px;
+    padding: 0 16px 4px 4px;
     overflow-x: auto;
     scrollbar-width: none;
+    -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 16px), transparent);
+    mask-image: linear-gradient(90deg, #000 calc(100% - 16px), transparent);
   }
   .main-nav::-webkit-scrollbar {
     display: none;
   }
   .main-nav a {
-    font-size: 14px;
+    font-size: 13px;
     white-space: nowrap;
     flex: 0 0 auto;
   }
@@ -441,18 +460,12 @@
 
 @media (max-width: 400px) {
   .main-nav {
-    gap: 0 10px;
+    gap: 0 6px;
+    padding-right: 12px;
+    -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 12px), transparent);
+    mask-image: linear-gradient(90deg, #000 calc(100% - 12px), transparent);
   }
   .main-nav a {
-    font-size: 13px;
-  }
-}
-
-/* Écrans de 320 px : le menu défile, un fondu à droite l'indique. */
-@media (max-width: 359px) {
-  .main-nav {
-    padding-right: 24px;
-    -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 24px), transparent);
-    mask-image: linear-gradient(90deg, #000 calc(100% - 24px), transparent);
+    font-size: 12.5px;
   }
 }
