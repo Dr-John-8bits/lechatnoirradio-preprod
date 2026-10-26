@@ -109,7 +109,7 @@ export function renderAbout() {
       </div>
       <p class="about-text about-text--tight">Si tu demandes le retrait d’un morceau, la suppression est faite dès réception du message.</p>
       <p class="about-text about-text--tight">Aucune donnée personnelle n’est conservée au-delà du traitement de ta demande.</p>
-      <p class="about-text">On n’est pas très actif·ves sur les produits de META, mais on tient un <a class="ghost-link" href="https://www.instagram.com/lechatnoirradio/" target="_blank" rel="noopener noreferrer">compte Instagram vaguement à jour ↗</a>.</p>
+      <p class="about-text">On n’est pas très actif·ves sur les produits de META : notre <a class="ghost-link" href="https://www.instagram.com/lechatnoirradio/" target="_blank" rel="noopener noreferrer">compte Instagram ↗</a> est de moins en moins à jour. On est plutôt sur Mastodon, <a class="ghost-link" href="https://mastodon.social/@lechatnoirradio" target="_blank" rel="me noopener noreferrer">@lechatnoirradio@mastodon.social ↗</a>, où l’on communique quand on a le temps et qu’on y pense.</p>
       <div class="cards-grid cards-grid--contact">${contribCards}</div>
     </section>
 
